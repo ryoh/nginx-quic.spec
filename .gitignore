@@ -1,0 +1,18 @@
+# Linux
+*.swp
+*.bak
+*~
+
+# spec file
+BUILD/
+BUILDROOT/
+RPMS/
+SRPMS/
+SOURCES/*.gz
+SOURCES/*.bz2
+SOURCES/*.xz
+SOURCES/*.asc
+*.gz
+*.bz2
+*.xz
+*.asc
