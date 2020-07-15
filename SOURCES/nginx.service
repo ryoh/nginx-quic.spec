@@ -1,0 +1,22 @@
+[Unit]
+Description=The NGINX HTTP and reverse proxy server
+Documentation=https://nginx.org/en/docs/
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+Type=forking
+PIDFile=${rundir}/nginx.pid
+EnvironmentFile=${sysconfdir}/sysconfig/${pkg_name}
+ExecStartPre=${sbindir}/nginx -t
+ExecStart=${sbindir}/nginx
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s QUIT $MAINPID
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=full
+ProtectHome=true
+DevicePolicy=closed
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target

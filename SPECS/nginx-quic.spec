@@ -25,7 +25,7 @@
 
 %global         pkg_name            nginx-quic
 %global         main_version        1.19.1
-%global         main_release        0%{?dist}
+%global         main_release        1%{?dist}
 
 Name:           %{pkg_name}
 Version:        %{main_version}
@@ -36,6 +36,21 @@ License:        BSD
 URL:            https://nginx.org/
 
 Source0:        https://hg.nginx.org/nginx-quic/archive/quic.tar.gz
+
+Source10:       nginx.service
+Source11:       nginx.sysconf
+Source12:       nginx.logrotate
+Source13:       nginx.conf
+Source14:       nginx-http.conf
+Source15:       nginx-http-log_format.conf
+Source16:       nginx-http-client.conf
+Source17:       nginx-http-proxy.conf
+Source18:       nginx-http-gzip.conf
+Source19:       nginx-http-ssl.conf
+Source20:       nginx-http-security_headers.conf
+Source21:       nginx-http-proxy_headers.conf
+Source50:       00-default.conf
+
 Source100:      https://boringssl.googlesource.com/boringssl/+archive/refs/heads/master.tar.gz
 
 Requires:       openssl11-libs
@@ -52,6 +67,7 @@ BuildRequires:  jemalloc-devel
 BuildRequires:  cmake3 ninja-build golang
 BuildRequires:  openssl11-devel
 BuildRequires:  libunwind-devel
+BuildRequires:  devtoolset-9
 
 %description
 nginx [engine x] is an HTTP and reverse proxy server, a mail proxy server,
@@ -69,6 +85,8 @@ popd
 
 
 %build
+source scl_source enable devtoolset-9 ||:
+
 pushd ../boringssl
 mkdir build
 cd build
@@ -82,8 +100,6 @@ ln -s ../include .
 cd ..
 cp build/crypto/libcrypto.a build/ssl/libssl.a .openssl/lib
 popd
-
-source scl_source enable devtoolset-9 ||:
 
 CFLAGS="${CFLAGS:-%{optflags} $(pcre-config --cflags)}"; export CFLAGS;
 export CXXFLAGS="${CXXFLAGS:-${CFLAGS}}"
@@ -157,10 +173,46 @@ LDFLAGS="${LDFLAGS:-${RPM_LD_FLAGS} -Wl,-E -ljemalloc}"; export LDFLAGS;
 %{__install} -p -d -m 0755 %{buildroot}%{nginx_uwsgi_cachedir}
 %{__install} -p -d -m 0755 %{buildroot}%{nginx_scgi_cachedir}
 
+# Add systemd service unit file
+%{__install} -p -D -m 0644 %{SOURCE10} %{buildroot}%{_unitdir}/nginx.service
+
+# sysconfig
+%{__install} -p -D -m 0644 %{SOURCE11} %{buildroot}%{_sysconfdir}/sysconfig/nginx
+
+# logrotate
+%{__install} -p -D -m 0644 %{SOURCE12} %{buildroot}%{_sysconfdir}/logrotate.d/nginx
+
 # nginx config
 unlink %{buildroot}%{nginx_confdir}/koi-utf
 unlink %{buildroot}%{nginx_confdir}/koi-win
 unlink %{buildroot}%{nginx_confdir}/win-utf
+%{__install} -p -D -m 0640 %{SOURCE13} %{buildroot}%{nginx_confdir}/nginx.conf
+%{__install} -p -D -m 0640 %{SOURCE14} %{buildroot}%{nginx_confdir}/conf.d/http.conf
+%{__install} -p -D -m 0640 %{SOURCE15} %{buildroot}%{nginx_confdir}/conf.d/http/log_format.conf
+%{__install} -p -D -m 0640 %{SOURCE16} %{buildroot}%{nginx_confdir}/conf.d/http/client.conf
+%{__install} -p -D -m 0640 %{SOURCE17} %{buildroot}%{nginx_confdir}/conf.d/http/proxy.conf
+%{__install} -p -D -m 0640 %{SOURCE18} %{buildroot}%{nginx_confdir}/conf.d/http/gzip.conf
+%{__install} -p -D -m 0640 %{SOURCE19} %{buildroot}%{nginx_confdir}/conf.d/http/ssl.conf
+%{__install} -p -D -m 0640 %{SOURCE20} %{buildroot}%{nginx_confdir}/conf.d/http/security_headers.conf
+%{__install} -p -D -m 0640 %{SOURCE21} %{buildroot}%{nginx_confdir}/conf.d/http/proxy_headers.conf
+
+%{__install} -p -D -m 0640 %{SOURCE50} %{buildroot}%{nginx_confdir}/vhost.d/http/00-default.conf
+
+# nginx reset paths
+%{__sed} -i \
+  -e 's|${rundir}|%{_rundir}|g' \
+  -e 's|${sbindir}|%{_sbindir}|g' \
+  -e 's|${sysconfdir}|%{_sysconfdir}|g' \
+  -e 's|${logdir}|%{nginx_logdir}|g' \
+  -e 's|${pkg_name}|nginx|g' \
+  %{buildroot}%{_unitdir}/nginx.service \
+  %{buildroot}%{_sysconfdir}/sysconfig/nginx \
+  %{buildroot}%{_sysconfdir}/logrotate.d/nginx \
+  %{buildroot}%{nginx_confdir}/nginx.conf
+
+%{__sed} -i \
+  -e 's|${client_tempdir}|%{nginx_client_tempdir}|g' \
+  %{buildroot}%{nginx_confdir}/conf.d/http/client.conf
 
 %pre
 case $1 in
@@ -180,7 +232,7 @@ case $1 in
 esac
 
 %post
-#%systemd_post nginx.service
+%systemd_post nginx.service
 case $1 in
   1)
   : install
@@ -191,7 +243,7 @@ case $1 in
 esac
 
 %preun
-#%systemd_pre nginx.service
+%systemd_pre nginx.service
 case $1 in
   0)
   : uninstall
@@ -202,7 +254,7 @@ case $1 in
 esac
 
 %postun
-#%systemd_postun nginx.service
+%systemd_postun nginx.service
 case $1 in
   0)
   : uninstall
@@ -227,11 +279,24 @@ esac
 %config(noreplace) %{nginx_confdir}/fastcgi_params
 %config(noreplace) %{nginx_confdir}/scgi_params
 %config(noreplace) %{nginx_confdir}/uwsgi_params
+%config(noreplace) %{nginx_confdir}/conf.d/http.conf
+%config(noreplace) %{nginx_confdir}/conf.d/http/client.conf
+%config(noreplace) %{nginx_confdir}/conf.d/http/gzip.conf
+%config(noreplace) %{nginx_confdir}/conf.d/http/log_format.conf
+%config(noreplace) %{nginx_confdir}/conf.d/http/proxy.conf
+%config(noreplace) %{nginx_confdir}/conf.d/http/ssl.conf
+%config(noreplace) %{nginx_confdir}/conf.d/http/security_headers.conf
+%config(noreplace) %{nginx_confdir}/conf.d/http/proxy_headers.conf
+%config(noreplace) %{nginx_confdir}/vhost.d/http/00-default.conf
 
 %dir %{nginx_home}
 %dir %{nginx_webroot}
 %{nginx_webroot}/50x.html
 %{nginx_webroot}/index.html
+
+%config(noreplace) %{_unitdir}/nginx.service
+%config(noreplace) %{_sysconfdir}/sysconfig/nginx
+%config(noreplace) %{_sysconfdir}/logrotate.d/nginx
 
 %dir %{nginx_rundir}
 %dir %{nginx_lockdir}
@@ -251,5 +316,7 @@ esac
 
 
 %changelog
+* Wed Jul 15 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-1
+- Add Conf files
 * Fri Jul 10 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-0
 - Initial

@@ -1,0 +1,13 @@
+${logdir}/*.log {
+    daily
+    dateyesterday
+    rotate 7
+    create 0644 nginx adm
+    compress
+    missingok
+    ifempty
+    sharedscripts
+    postrotate
+       ${sbindir}/nginx -s reopen
+    endscript
+}
