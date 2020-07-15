@@ -25,7 +25,7 @@
 
 %global         pkg_name            nginx-quic
 %global         main_version        1.19.1
-%global         main_release        1%{?dist}
+%global         main_release        3%{?dist}
 
 Name:           %{pkg_name}
 Version:        %{main_version}
