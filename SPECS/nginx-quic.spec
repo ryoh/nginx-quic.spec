@@ -23,9 +23,12 @@
 %global         nginx_uwsgi_cachedir   %{nginx_tempdir}/uwsgi_cache
 %global         nginx_scgi_cachedir    %{nginx_tempdir}/scgi_cache
 
+%global         nginx_quic_commit   031918df51c0
+%global         boringssl_commit    f0558c359ca13a4e312164a47fa4cfe5e5ecb2dd
+
 %global         pkg_name            nginx-quic
 %global         main_version        1.19.1
-%global         main_release        4%{?dist}
+%global         main_release        5%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
 
 Name:           %{pkg_name}
 Version:        %{main_version}
@@ -35,7 +38,7 @@ Group:          System Environment/Daemons
 License:        BSD
 URL:            https://nginx.org/
 
-Source0:        https://hg.nginx.org/nginx-quic/archive/quic.tar.gz
+Source0:        https://hg.nginx.org/nginx-quic/archive/%{nginx_quic_commit}.tar.gz
 
 Source10:       nginx.service
 Source11:       nginx.sysconf
@@ -51,7 +54,7 @@ Source20:       nginx-http-security_headers.conf
 Source21:       nginx-http-proxy_headers.conf
 Source50:       00-default.conf
 
-Source100:      https://boringssl.googlesource.com/boringssl/+archive/refs/heads/master.tar.gz
+Source100:      https://boringssl.googlesource.com/boringssl/+archive/%{boringssl_commit}.tar.gz
 
 Requires:       jemalloc
 Requires(pre):  shadow-utils
@@ -77,7 +80,7 @@ nginx [engine x] is an HTTP and reverse proxy server, a mail proxy server,
 and a generic TCP/UDP proxy server, originally written by Igor Sysoev.
 
 %prep
-%setup -q -n %{name}-quic
+%setup -q -n %{name}-%{nginx_quic_commit}
 
 pushd ..
 %{__rm} -rf boringssl
@@ -324,6 +327,9 @@ esac
 
 
 %changelog
+* Sun Jul 19 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-5
+- Change nginx-quic and boringssl commit version master -> commit hash
+- Change snapshot version
 * Thu Jul 16 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-4
 - Delete openssl11-libs, openssl11-devel
 * Wed Jul 15 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-1
