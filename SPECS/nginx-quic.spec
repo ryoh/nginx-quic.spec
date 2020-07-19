@@ -222,6 +222,14 @@ unlink %{buildroot}%{nginx_confdir}/win-utf
 
 %{__install} -p -D -m 0640 %{SOURCE50} %{buildroot}%{nginx_confdir}/vhost.d/http/00-default.conf
 
+# nginx modules conf
+%{__install} -p -d -m 0755 %{buildroot}%{nginx_confdir}/conf.modules.d/
+# brotli module
+cat <<__EOL__ > %{buildroot}%{nginx_confdir}/conf.modules.d/ngx_brotli.conf
+load_module "%{nginx_moddir}/ngx_http_brotli_filter_module.so";
+load_module "%{nginx_moddir}/ngx_http_brotli_static_module.so";
+__EOL__
+
 # nginx reset paths
 %{__sed} -i \
   -e 's|${rundir}|%{_rundir}|g' \
@@ -341,6 +349,7 @@ esac
 # Brotli
 %dir %{nginx_moddir}
 %config(noreplace) %{nginx_confdir}/conf.d/http/brotli.conf
+%config(noreplace) %{nginx_confdir}/conf.modules.d/ngx_brotli.conf
 %{nginx_moddir}/ngx_http_brotli_filter_module.so
 %{nginx_moddir}/ngx_http_brotli_static_module.so
 
