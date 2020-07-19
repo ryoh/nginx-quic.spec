@@ -112,7 +112,7 @@ cd ..
 cp build/crypto/libcrypto.a build/ssl/libssl.a .openssl/lib
 popd
 
-CFLAGS="${CFLAGS:-%{optflags} $(pcre-config --cflags)}"; export CFLAGS;
+CFLAGS="${CFLAGS:-%{optflags} $(pcre-config --cflags)} -flto"; export CFLAGS;
 export CXXFLAGS="${CXXFLAGS:-${CFLAGS}}"
 LDFLAGS="${LDFLAGS:-${RPM_LD_FLAGS} -Wl,-E -ljemalloc}"; export LDFLAGS;
 
