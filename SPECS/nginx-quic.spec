@@ -28,7 +28,7 @@
 
 %global         pkg_name            nginx-quic
 %global         main_version        1.19.1
-%global         main_release        6%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
+%global         main_release        7%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
 
 Name:           %{pkg_name}
 Version:        %{main_version}
@@ -52,11 +52,15 @@ Source18:       nginx-http-gzip.conf
 Source19:       nginx-http-ssl.conf
 Source20:       nginx-http-security_headers.conf
 Source21:       nginx-http-proxy_headers.conf
+Source22:       nginx-http-brotli.conf
 Source50:       00-default.conf
 
 Source100:      https://boringssl.googlesource.com/boringssl/+archive/%{boringssl_commit}.tar.gz
 
+Source200:      https://github.com/google/ngx_brotli/archive/v1.0.0rc.tar.gz#/ngx_brotli-v1.0.0rc.tar.gz
+
 Requires:       jemalloc
+Requires:       brotli
 Requires(pre):  shadow-utils
 Requires(post):   systemd 
 Requires(preun):  systemd 
@@ -68,6 +72,7 @@ BuildRequires:  zlib-devel pcre-devel
 BuildRequires:  jemalloc-devel
 BuildRequires:  cmake3 ninja-build golang
 BuildRequires:  libunwind-devel
+BuildRequires:  brotli-devel
 %if 0%{rhel} == 7
 BuildRequires:  devtoolset-9
 %endif
@@ -89,6 +94,12 @@ cd boringssl
 %{__tar} -xf %{SOURCE100}
 popd
 
+pushd ..
+%{__rm} -rf ngx_brotli
+%{__mkdir} ngx_brotli
+cd ngx_brotli
+%{__tar} -xf %{SOURCE200} --strip 1
+popd
 
 %build
 %if 0%{rhel} == 7
@@ -158,6 +169,7 @@ LDFLAGS="${LDFLAGS:-${RPM_LD_FLAGS} -Wl,-E -ljemalloc}"; export LDFLAGS;
   --with-http_degradation_module \
   --with-http_slice_module \
   --with-http_stub_status_module \
+  --add-dynamic-module=../ngx_brotli \
 
 %make_build
 
@@ -206,6 +218,7 @@ unlink %{buildroot}%{nginx_confdir}/win-utf
 %{__install} -p -D -m 0640 %{SOURCE19} %{buildroot}%{nginx_confdir}/conf.d/http/ssl.conf
 %{__install} -p -D -m 0640 %{SOURCE20} %{buildroot}%{nginx_confdir}/conf.d/http/security_headers.conf
 %{__install} -p -D -m 0640 %{SOURCE21} %{buildroot}%{nginx_confdir}/conf.d/http/proxy_headers.conf
+%{__install} -p -D -m 0640 %{SOURCE22} %{buildroot}%{nginx_confdir}/conf.d/http/brotli.conf
 
 %{__install} -p -D -m 0640 %{SOURCE50} %{buildroot}%{nginx_confdir}/vhost.d/http/00-default.conf
 
@@ -325,8 +338,16 @@ esac
 %dir %{nginx_uwsgi_cachedir}
 %dir %{nginx_scgi_cachedir}
 
+# Brotli
+%dir %{nginx_moddir}
+%config(noreplace) %{nginx_confdir}/conf.d/http/brotli.conf
+%{nginx_moddir}/ngx_http_brotli_filter_module.so
+%{nginx_moddir}/ngx_http_brotli_static_module.so
+
 
 %changelog
+* Sun Jul 19 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-7
+- Add Brotli module
 * Sun Jul 19 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-6
 - Change build options
 * Sun Jul 19 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-5
