@@ -25,7 +25,7 @@
 
 %global         pkg_name            nginx-quic
 %global         main_version        1.19.1
-%global         main_release        3%{?dist}
+%global         main_release        4%{?dist}
 
 Name:           %{pkg_name}
 Version:        %{main_version}
@@ -53,7 +53,6 @@ Source50:       00-default.conf
 
 Source100:      https://boringssl.googlesource.com/boringssl/+archive/refs/heads/master.tar.gz
 
-Requires:       openssl11-libs
 Requires:       jemalloc
 Requires(pre):  shadow-utils
 Requires(post):   systemd 
@@ -65,9 +64,13 @@ BuildRequires:  make gcc automake autoconf libtool
 BuildRequires:  zlib-devel pcre-devel
 BuildRequires:  jemalloc-devel
 BuildRequires:  cmake3 ninja-build golang
-BuildRequires:  openssl11-devel
 BuildRequires:  libunwind-devel
+%if 0%{rhel} == 7
 BuildRequires:  devtoolset-9
+%endif
+%if 0%{rhel} == 8
+BuildRequires:  gcc-toolset-9
+%endif
 
 %description
 nginx [engine x] is an HTTP and reverse proxy server, a mail proxy server,
@@ -85,7 +88,12 @@ popd
 
 
 %build
+%if 0%{rhel} == 7
 source scl_source enable devtoolset-9 ||:
+%endif
+%if 0%{rhel} == 8
+source scl_source enable gcc-toolset-9 ||:
+%endif
 
 pushd ../boringssl
 mkdir build
@@ -316,6 +324,8 @@ esac
 
 
 %changelog
+* Thu Jul 16 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-4
+- Delete openssl11-libs, openssl11-devel
 * Wed Jul 15 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-1
 - Add Conf files
 * Fri Jul 10 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-0
