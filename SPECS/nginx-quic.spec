@@ -28,7 +28,7 @@
 
 %global         pkg_name            nginx-quic
 %global         main_version        1.19.1
-%global         main_release        5%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
+%global         main_release        6%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
 
 Name:           %{pkg_name}
 Version:        %{main_version}
@@ -112,14 +112,14 @@ cd ..
 cp build/crypto/libcrypto.a build/ssl/libssl.a .openssl/lib
 popd
 
-CFLAGS="${CFLAGS:-%{optflags} $(pcre-config --cflags)} -flto"; export CFLAGS;
+CFLAGS="${CFLAGS:-%{optflags} $(pcre-config --cflags) -flto=8 -fuse-ld=gold -gsplit-dwarf}"; export CFLAGS;
 export CXXFLAGS="${CXXFLAGS:-${CFLAGS}}"
 LDFLAGS="${LDFLAGS:-${RPM_LD_FLAGS} -Wl,-E -ljemalloc}"; export LDFLAGS;
 
 ./auto/configure \
   --with-debug \
-  --with-cc-opt="-I../boringssl/include -DTCP_FASTOPEN=23" \
-  --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto" \
+  --with-cc-opt="-I../boringssl/include -DTCP_FASTOPEN=23 ${CFLAGS}" \
+  --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto -Wl,-z,relro -Wl,-E -ljemalloc -lpcre -flto=8 -fuse-ld=gold" \
   --prefix=%{nginx_home} \
   --sbin-path=%{_sbindir}/nginx \
   --modules-path=%{nginx_moddir} \
@@ -327,6 +327,8 @@ esac
 
 
 %changelog
+* Sun Jul 19 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-6
+- Change build options
 * Sun Jul 19 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-5
 - Change nginx-quic and boringssl commit version master -> commit hash
 - Change snapshot version
