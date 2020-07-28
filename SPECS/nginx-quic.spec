@@ -23,12 +23,12 @@
 %global         nginx_uwsgi_cachedir   %{nginx_tempdir}/uwsgi_cache
 %global         nginx_scgi_cachedir    %{nginx_tempdir}/scgi_cache
 
-%global         nginx_quic_commit   031918df51c0
+%global         nginx_quic_commit   12576ac9556d
 %global         boringssl_commit    f0558c359ca13a4e312164a47fa4cfe5e5ecb2dd
 
 %global         pkg_name            nginx-quic
 %global         main_version        1.19.1
-%global         main_release        7%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
+%global         main_release        8%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
 
 Name:           %{pkg_name}
 Version:        %{main_version}
@@ -112,25 +112,19 @@ source scl_source enable gcc-toolset-9 ||:
 pushd ../boringssl
 mkdir build
 cd build
-cmake3 -GNinja ..
+%cmake3 -GNinja ..
 ninja
-
-cd ..
-mkdir -p .openssl/lib
-cd .openssl
-ln -s ../include .
-cd ..
-cp build/crypto/libcrypto.a build/ssl/libssl.a .openssl/lib
 popd
 
-CFLAGS="${CFLAGS:-%{optflags} $(pcre-config --cflags) -flto=8 -fuse-ld=gold -gsplit-dwarf}"; export CFLAGS;
+CFLAGS="%{optflags} $(pcre-config --cflags) -flto=8 -ffat-lto-objects -fuse-ld=gold -fuse-linker-plugin -Wformat -Wno-strict-aliasing -Wno-stringop-truncation -gsplit-dwarf -fPIC -pie"
+export CFLAGS;
 export CXXFLAGS="${CXXFLAGS:-${CFLAGS}}"
-LDFLAGS="${LDFLAGS:-${RPM_LD_FLAGS} -Wl,-E -ljemalloc}"; export LDFLAGS;
+LDFLAGS="%{?__global_ldflags} -Wl,-E -lrt -ljemalloc -lpcre -flto=8 -fuse-ld=gold"; export LDFLAGS;
 
 ./auto/configure \
   --with-debug \
   --with-cc-opt="-I../boringssl/include -DTCP_FASTOPEN=23 ${CFLAGS}" \
-  --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto -Wl,-z,relro -Wl,-E -ljemalloc -lpcre -flto=8 -fuse-ld=gold" \
+  --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto ${LDFLAGS}" \
   --prefix=%{nginx_home} \
   --sbin-path=%{_sbindir}/nginx \
   --modules-path=%{nginx_moddir} \
@@ -149,12 +143,14 @@ LDFLAGS="${LDFLAGS:-${RPM_LD_FLAGS} -Wl,-E -ljemalloc}"; export LDFLAGS;
   --build=%{name}-%{version}-%{release} \
   --with-threads \
   --with-file-aio \
+  --with-libatomic \
   --with-compat \
   --with-pcre \
   --with-pcre-jit \
   --with-http_ssl_module \
   --with-http_v2_module \
   --with-http_v3_module \
+  --with-http_quic_module \
   --with-http_realip_module \
   --with-http_addition_module \
   --with-http_sub_module \
@@ -169,6 +165,11 @@ LDFLAGS="${LDFLAGS:-${RPM_LD_FLAGS} -Wl,-E -ljemalloc}"; export LDFLAGS;
   --with-http_degradation_module \
   --with-http_slice_module \
   --with-http_stub_status_module \
+  --with-stream=dynamic \
+  --with-stream_ssl_module \
+  --with-stream_realip_module \
+  --with-stream_ssl_preread_module \
+  --with-stream_quic_module \
   --add-dynamic-module=../ngx_brotli \
 
 %make_build
@@ -224,6 +225,12 @@ unlink %{buildroot}%{nginx_confdir}/win-utf
 
 # nginx modules conf
 %{__install} -p -d -m 0755 %{buildroot}%{nginx_confdir}/conf.modules.d/
+
+# stream module
+cat <<__EOL__ > %{buildroot}%{nginx_confdir}/conf.modules.d/ngx_stream.conf
+load_module "%{nginx_moddir}/ngx_stream_module.so";
+__EOL__
+
 # brotli module
 cat <<__EOL__ > %{buildroot}%{nginx_confdir}/conf.modules.d/ngx_brotli.conf
 load_module "%{nginx_moddir}/ngx_http_brotli_filter_module.so";
@@ -305,6 +312,8 @@ esac
 %files
 %defattr(-,root,root)
 %{_sbindir}/nginx
+%{nginx_moddir}/ngx_stream_module.so
+%config(noreplace) %{nginx_confdir}/conf.modules.d/ngx_stream.conf
 
 %config(noreplace) %{nginx_confdir}/nginx.conf
 %config(noreplace) %{nginx_confdir}/mime.types
@@ -355,6 +364,13 @@ esac
 
 
 %changelog
+* Wed Jul 29 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-8
+- Add h3 directive: http3_max_field_size, http3_max_table_capacity, http3_max_blocked_streams, http3_max_concurrent_pushes, http3_push, http3_push_preload
+- Add "quic" listen parameter
+- Add HTTP/3 Server Push
+- Add support HTTP/3 $server_protocol variable
+- Add QUIC support for stream module
+- Change build options
 * Sun Jul 19 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-7
 - Add Brotli module
 * Sun Jul 19 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-6
