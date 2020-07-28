@@ -1,5 +1,5 @@
 %global         _performance_build  1
-%global         _hardened_build     1
+#%%global         _hardened_build     1
 
 %global         nginx_user          nginx
 %global         nginx_group         nginx
@@ -110,21 +110,23 @@ source scl_source enable devtoolset-9 ||:
 source scl_source enable gcc-toolset-9 ||:
 %endif
 
+# BoringSSL
 pushd ../boringssl
 mkdir build
 cd build
-%cmake3 -GNinja ..
+cmake3 -GNinja ..
 ninja
 popd
 
-CFLAGS="%{optflags} $(pcre-config --cflags) -flto=8 -ffat-lto-objects -fuse-ld=gold -fuse-linker-plugin -Wformat -Wno-strict-aliasing -Wno-stringop-truncation -gsplit-dwarf -fPIC -pie"
-export CFLAGS;
-export CXXFLAGS="${CXXFLAGS:-${CFLAGS}}"
+EXCC_OPTS="-ftree-vectorize -flto=8 -ffat-lto-objects -fuse-ld=gold -fuse-linker-plugin -Wformat -Wno-strict-aliasing -Wno-stringop-truncation -gsplit-dwarf"
+CFLAGS="$(echo %{optflags} $(pcre-config --cflags) | sed -e 's/-O2/-O3/')"
+CFLAGS="${CFLAGS} ${EXCC_OPTS}"; export CFLAGS;
+export CXXFLAGS="${CFLAGS}"
 LDFLAGS="%{?__global_ldflags} -Wl,-E -lrt -ljemalloc -lpcre -flto=8 -fuse-ld=gold"; export LDFLAGS;
 
 ./auto/configure \
   --with-debug \
-  --with-cc-opt="-I../boringssl/include -DTCP_FASTOPEN=23 ${CFLAGS}" \
+  --with-cc-opt="-I../boringssl/include ${CFLAGS}" \
   --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto ${LDFLAGS}" \
   --prefix=%{nginx_home} \
   --sbin-path=%{_sbindir}/nginx \
@@ -166,11 +168,6 @@ LDFLAGS="%{?__global_ldflags} -Wl,-E -lrt -ljemalloc -lpcre -flto=8 -fuse-ld=gol
   --with-http_degradation_module \
   --with-http_slice_module \
   --with-http_stub_status_module \
-  --with-stream=dynamic \
-  --with-stream_ssl_module \
-  --with-stream_realip_module \
-  --with-stream_ssl_preread_module \
-  --with-stream_quic_module \
   --add-dynamic-module=../ngx_brotli \
 
 %make_build
@@ -226,11 +223,6 @@ unlink %{buildroot}%{nginx_confdir}/win-utf
 
 # nginx modules conf
 %{__install} -p -d -m 0755 %{buildroot}%{nginx_confdir}/conf.modules.d/
-
-# stream module
-cat <<__EOL__ > %{buildroot}%{nginx_confdir}/conf.modules.d/ngx_stream.conf
-load_module "%{nginx_moddir}/ngx_stream_module.so";
-__EOL__
 
 # brotli module
 cat <<__EOL__ > %{buildroot}%{nginx_confdir}/conf.modules.d/ngx_brotli.conf
@@ -313,8 +305,6 @@ esac
 %files
 %defattr(-,root,root)
 %{_sbindir}/nginx
-%{nginx_moddir}/ngx_stream_module.so
-%config(noreplace) %{nginx_confdir}/conf.modules.d/ngx_stream.conf
 
 %config(noreplace) %{nginx_confdir}/nginx.conf
 %config(noreplace) %{nginx_confdir}/mime.types
