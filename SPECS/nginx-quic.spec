@@ -74,10 +74,10 @@ BuildRequires:  cmake3 ninja-build golang
 BuildRequires:  libunwind-devel
 BuildRequires:  libatomic_ops-devel
 BuildRequires:  brotli-devel
-%if 0%{rhel} == 7
+%if 0%{?rhel} == 7
 BuildRequires:  devtoolset-9
 %endif
-%if 0%{rhel} == 8
+%if 0%{?rhel} == 8
 BuildRequires:  gcc-toolset-9
 %endif
 
@@ -103,10 +103,10 @@ cd ngx_brotli
 popd
 
 %build
-%if 0%{rhel} == 7
+%if 0%{?rhel} == 7
 source scl_source enable devtoolset-9 ||:
 %endif
-%if 0%{rhel} == 8
+%if 0%{?rhel} == 8
 source scl_source enable gcc-toolset-9 ||:
 %endif
 
