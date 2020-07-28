@@ -72,6 +72,7 @@ BuildRequires:  zlib-devel pcre-devel
 BuildRequires:  jemalloc-devel
 BuildRequires:  cmake3 ninja-build golang
 BuildRequires:  libunwind-devel
+BuildRequires:  libatomic_ops-devel
 BuildRequires:  brotli-devel
 %if 0%{rhel} == 7
 BuildRequires:  devtoolset-9
