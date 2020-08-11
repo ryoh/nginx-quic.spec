@@ -24,7 +24,7 @@
 %global         nginx_scgi_cachedir    %{nginx_tempdir}/scgi_cache
 
 %global         nginx_quic_commit   69033a50c3ae
-%global         boringssl_commit    0cd846f24fc705daadb51e2cba3f28b975ddadf6
+%global         boringssl_commit    74161f485b5d54fe963cbd3d081b718ec84d2e00
 
 %global         pkg_name            nginx-quic
 %global         main_version        1.19.1
