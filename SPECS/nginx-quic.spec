@@ -75,6 +75,7 @@ BuildRequires:  libunwind-devel
 BuildRequires:  libatomic_ops-devel
 BuildRequires:  brotli-devel
 BuildRequires:  openssl-devel
+BuildRequires:  openssl11-devel
 %if 0%{?rhel} == 7
 BuildRequires:  devtoolset-9
 %endif
