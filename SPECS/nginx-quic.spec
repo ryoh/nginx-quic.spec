@@ -74,8 +74,8 @@ BuildRequires:  cmake3 ninja-build golang
 BuildRequires:  libunwind-devel
 BuildRequires:  libatomic_ops-devel
 BuildRequires:  brotli-devel
+BuildRequires:  openssl-devel
 %if 0%{?rhel} == 7
-BuildRequires:  libgcrypt-devel
 BuildRequires:  devtoolset-9
 %endif
 %if 0%{?rhel} == 8
