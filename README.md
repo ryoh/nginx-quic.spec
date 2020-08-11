@@ -1,5 +1,7 @@
 # nginx-quic.spec
 
+[![Copr build status](https://copr.fedorainfracloud.org/coprs/ryoh/nginx-quic/package/nginx-quic/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/ryoh/nginx-quic/package/nginx-quic/)
+
 nginx quic preview package
 
 ## Build
