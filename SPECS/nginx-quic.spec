@@ -24,7 +24,7 @@
 %global         nginx_scgi_cachedir    %{nginx_tempdir}/scgi_cache
 
 %global         nginx_quic_commit   69033a50c3ae
-%global         boringssl_commit    0cd846f24fc705daadb51e2cba3f28b975ddadf6
+%global         boringssl_commit    281a8f5ea393ffe67924249d2f0636d97a609c1f
 
 %global         pkg_name            nginx-quic
 %global         main_version        1.19.1
@@ -75,13 +75,6 @@ BuildRequires:  libunwind-devel
 BuildRequires:  libatomic_ops-devel
 BuildRequires:  brotli-devel
 BuildRequires:  openssl-devel
-BuildRequires:  keyutils-libs-devel
-BuildRequires:  krb5-devel
-BuildRequires:  libcom_err-devel
-BuildRequires:  libkadm5
-BuildRequires:  libselinux-devel
-BuildRequires:  libsepol-devel
-BuildRequires:  libverto-devel
 %if 0%{?rhel} == 7
 BuildRequires:  devtoolset-9
 %endif
