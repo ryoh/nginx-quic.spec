@@ -23,12 +23,12 @@
 %global         nginx_uwsgi_cachedir   %{nginx_tempdir}/uwsgi_cache
 %global         nginx_scgi_cachedir    %{nginx_tempdir}/scgi_cache
 
-%global         nginx_quic_commit   12576ac9556d
-%global         boringssl_commit    f0558c359ca13a4e312164a47fa4cfe5e5ecb2dd
+%global         nginx_quic_commit   69033a50c3ae
+%global         boringssl_commit    0cd846f24fc705daadb51e2cba3f28b975ddadf6
 
 %global         pkg_name            nginx-quic
 %global         main_version        1.19.1
-%global         main_release        8%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
+%global         main_release        9%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
 
 Name:           %{pkg_name}
 Version:        %{main_version}
@@ -355,6 +355,8 @@ esac
 
 
 %changelog
+* Tue Aug 11 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-9
+- Change bumpup version nginx-quic, boringssl
 * Wed Jul 29 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-8
 - Add h3 directive: http3_max_field_size, http3_max_table_capacity, http3_max_blocked_streams, http3_max_concurrent_pushes, http3_push, http3_push_preload
 - Add "quic" listen parameter
