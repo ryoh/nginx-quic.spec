@@ -62,6 +62,8 @@ Source200:      https://github.com/google/ngx_brotli/archive/v1.0.0rc.tar.gz#/ng
 Source201:      https://github.com/leev/ngx_http_geoip2_module/archive/3.3.tar.gz#/ngx_http_geoip2_module-3.3.tar.gz
 Source202:      https://github.com/SpiderLabs/ModSecurity-nginx/archive/v1.0.1.tar.gz#/ModSecurity-nginx-v1.0.1.tar.gz
 Source203:      https://github.com/vozlt/nginx-module-vts/archive/v0.1.18.tar.gz#/nginx-module-vts-v0.1.18.tar.gz
+Source204:      https://github.com/openresty/echo-nginx-module/archive/v0.62.tar.gz#/echo-nginx-module-v0.62.tar.gz
+Source205:      https://github.com/openresty/headers-more-nginx-module/archive/v0.33.tar.gz#/headers-more-nginx-module-v0.33.tar.gz
 
 Requires:       jemalloc
 Requires:       brotli
@@ -82,6 +84,8 @@ BuildRequires:  openssl-devel
 BuildRequires:  GeoIP-devel
 BuildRequires:  libmaxminddb-devel
 BuildRequires:  libmodsecurity-devel
+BuildRequires:  readline-devel
+BuildRequires:  expect-devel
 %if 0%{?rhel} == 7
 BuildRequires:  devtoolset-9
 %endif
@@ -139,6 +143,22 @@ MODULE="nginx-module-vts"
 %{__mkdir} ${MODULE}
 cd ${MODULE}
 %{__tar} -xf %{SOURCE203} --strip 1
+popd
+
+pushd ..
+MODULE="echo-nginx-module"
+%{__rm} -rf ${MODULE}
+%{__mkdir} ${MODULE}
+cd ${MODULE}
+%{__tar} -xf %{SOURCE204} --strip 1
+popd
+
+pushd ..
+MODULE="headers-more-nginx-module"
+%{__rm} -rf ${MODULE}
+%{__mkdir} ${MODULE}
+cd ${MODULE}
+%{__tar} -xf %{SOURCE205} --strip 1
 popd
 
 %build
@@ -218,6 +238,8 @@ popd
   --add-dynamic-module=../ngx_http_geoip2_module \
   --add-dynamic-module=../ModSecurity-nginx \
   --add-dynamic-module=../nginx-module-vts \
+  --add-dynamic-module=../echo-nginx-module \
+  --add-dynamic-module=../headers-more-nginx-module \
 
 %make_build
 
@@ -417,6 +439,10 @@ esac
 # VTS
 %{nginx_moddir}/ngx_http_vhost_traffic_status_module.so
 
+# util modules
+%{nginx_moddir}/ngx_http_echo_module.so
+%{nginx_moddir}/ngx_http_headers_more_filter_module.so
+
 
 %changelog
 * Tue Oct 27 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-10
@@ -426,6 +452,8 @@ esac
 - Add GeoIP2 module
 - Add ModSecurity module
 - Add VTS module
+- Add echo module
+- Add headers more filter module
 * Tue Aug 11 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-9
 - Change bumpup version nginx-quic, boringssl
 * Wed Jul 29 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-8
