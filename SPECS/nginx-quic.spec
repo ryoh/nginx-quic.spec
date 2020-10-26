@@ -164,6 +164,7 @@ popd
 %build
 %if 0%{?rhel} == 7
 source scl_source enable devtoolset-9 ||:
+source scl_source enable rh-git218 ||:
 %endif
 %if 0%{?rhel} == 8
 source scl_source enable gcc-toolset-9 ||:
@@ -247,6 +248,9 @@ popd
 [[ -d %{buildroot} ]] && rm -rf "%{buildroot}"
 %{__mkdir} -p "%{buildroot}"
 %make_install INSTALLDIRS=vendor
+
+# njs bin
+%{__install} -p -D -m 0755 %{_builddir}/njs/build/njs %{buildroot}%{_bindir}/njs
 
 # Deleting unused files
 %{__rm} -f %{buildroot}%{nginx_confdir}/fastcgi.conf
@@ -419,6 +423,7 @@ esac
 
 # njs
 %dir %{nginx_moddir}
+%{_bindir}/njs
 %{nginx_moddir}/ngx_http_js_module.so
 
 # Brotli
