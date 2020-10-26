@@ -23,12 +23,12 @@
 %global         nginx_uwsgi_cachedir   %{nginx_tempdir}/uwsgi_cache
 %global         nginx_scgi_cachedir    %{nginx_tempdir}/scgi_cache
 
-%global         nginx_quic_commit   69033a50c3ae
-%global         boringssl_commit    281a8f5ea393ffe67924249d2f0636d97a609c1f
+%global         nginx_quic_commit   c5ea341f705a 
+%global         boringssl_commit    777e1ff3b1443788c5fdb982b3b822aac5448d9e
 
 %global         pkg_name            nginx-quic
 %global         main_version        1.19.1
-%global         main_release        9%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
+%global         main_release        10%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
 
 Name:           %{pkg_name}
 Version:        %{main_version}
@@ -58,6 +58,7 @@ Source50:       00-default.conf
 Source100:      https://boringssl.googlesource.com/boringssl/+archive/%{boringssl_commit}.tar.gz
 
 Source200:      https://github.com/google/ngx_brotli/archive/v1.0.0rc.tar.gz#/ngx_brotli-v1.0.0rc.tar.gz
+Source201:      https://github.com/leev/ngx_http_geoip2_module/archive/3.3.tar.gz#/ngx_http_geoip2_module-3.3.tar.gz
 
 Requires:       jemalloc
 Requires:       brotli
@@ -75,6 +76,8 @@ BuildRequires:  libunwind-devel
 BuildRequires:  libatomic_ops-devel
 BuildRequires:  brotli-devel
 BuildRequires:  openssl-devel
+BuildRequires:  GeoIP-devel
+BuildRequires:  libmaxminddb-devel
 %if 0%{?rhel} == 7
 BuildRequires:  devtoolset-9
 %endif
@@ -101,6 +104,13 @@ pushd ..
 %{__mkdir} ngx_brotli
 cd ngx_brotli
 %{__tar} -xf %{SOURCE200} --strip 1
+popd
+
+pushd ..
+%{__rm} -rf ngx_http_geoip2_module
+%{__mkdir} ngx_http_geoip2_module
+cd ngx_http_geoip2_module
+%{__tar} -xf %{SOURCE201} --strip 1
 popd
 
 %build
@@ -170,6 +180,7 @@ LDFLAGS="%{?__global_ldflags} -Wl,-E -lrt -ljemalloc -lpcre -flto=8 -fuse-ld=gol
   --with-http_slice_module \
   --with-http_stub_status_module \
   --add-dynamic-module=../ngx_brotli \
+  --add-dynamic-module=../ngx_http_geoip2_module \
 
 %make_build
 
@@ -354,8 +365,14 @@ esac
 %{nginx_moddir}/ngx_http_brotli_filter_module.so
 %{nginx_moddir}/ngx_http_brotli_static_module.so
 
+# GeoIP2
+%{nginx_moddir}/ngx_http_geoip2_module.so
+
 
 %changelog
+* Tue Oct 27 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-10
+- Change bumpup version nginx-quic, boringssl
+- Add GeoIP2 module
 * Tue Aug 11 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-9
 - Change bumpup version nginx-quic, boringssl
 * Wed Jul 29 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-8
