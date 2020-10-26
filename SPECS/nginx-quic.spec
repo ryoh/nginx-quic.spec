@@ -88,6 +88,7 @@ BuildRequires:  readline-devel
 BuildRequires:  expect-devel
 %if 0%{?rhel} == 7
 BuildRequires:  devtoolset-9
+BuildRequires:  rh-git218
 %endif
 %if 0%{?rhel} == 8
 BuildRequires:  gcc-toolset-9
