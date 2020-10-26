@@ -179,6 +179,7 @@ LDFLAGS="%{?__global_ldflags} -Wl,-E -lrt -ljemalloc -lpcre -flto=8 -fuse-ld=gol
   --with-http_degradation_module \
   --with-http_slice_module \
   --with-http_stub_status_module \
+  --with-http_geoip_module=dynamic \
   --add-dynamic-module=../ngx_brotli \
   --add-dynamic-module=../ngx_http_geoip2_module \
 
@@ -365,6 +366,9 @@ esac
 %{nginx_moddir}/ngx_http_brotli_filter_module.so
 %{nginx_moddir}/ngx_http_brotli_static_module.so
 
+# GeoIP
+%{nginx_moddir}/ngx_http_geoip_module.so
+
 # GeoIP2
 %{nginx_moddir}/ngx_http_geoip2_module.so
 
@@ -372,6 +376,7 @@ esac
 %changelog
 * Tue Oct 27 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-10
 - Change bumpup version nginx-quic, boringssl
+- Add GeoIP module
 - Add GeoIP2 module
 * Tue Aug 11 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-9
 - Change bumpup version nginx-quic, boringssl
