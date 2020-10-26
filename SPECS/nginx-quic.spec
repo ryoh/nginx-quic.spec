@@ -27,7 +27,7 @@
 %global         boringssl_commit    777e1ff3b1443788c5fdb982b3b822aac5448d9e
 
 %global         pkg_name            nginx-quic
-%global         main_version        1.19.1
+%global         main_version        1.19.3
 %global         main_release        10%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
 
 Name:           %{pkg_name}
@@ -445,7 +445,7 @@ esac
 
 
 %changelog
-* Tue Oct 27 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-10
+* Tue Oct 27 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.3-10
 - Change bumpup version nginx-quic, boringssl
 - Add njs module
 - Add GeoIP module
