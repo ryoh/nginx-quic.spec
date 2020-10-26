@@ -38,7 +38,8 @@ Group:          System Environment/Daemons
 License:        BSD
 URL:            https://nginx.org/
 
-Source0:        https://hg.nginx.org/nginx-quic/archive/%{nginx_quic_commit}.tar.gz
+Source0:        https://hg.nginx.org/nginx-quic/archive/%{nginx_quic_commit}.tar.gz#/nginx-quic-%{nginx_quic_commit}.tar.gz
+Source1:        https://hg.nginx.org/njs/archive/0.4.4.tar.gz#/njs-0.4.4.tar.gz
 
 Source10:       nginx.service
 Source11:       nginx.sysconf
@@ -55,7 +56,7 @@ Source21:       nginx-http-proxy_headers.conf
 Source22:       nginx-http-brotli.conf
 Source50:       00-default.conf
 
-Source100:      https://boringssl.googlesource.com/boringssl/+archive/%{boringssl_commit}.tar.gz
+Source100:      https://boringssl.googlesource.com/boringssl/+archive/%{boringssl_commit}.tar.gz#/boringssl-%{boringssl_commit}.tar.gz
 
 Source200:      https://github.com/google/ngx_brotli/archive/v1.0.0rc.tar.gz#/ngx_brotli-v1.0.0rc.tar.gz
 Source201:      https://github.com/leev/ngx_http_geoip2_module/archive/3.3.tar.gz#/ngx_http_geoip2_module-3.3.tar.gz
@@ -100,6 +101,14 @@ pushd ..
 %{__mkdir} boringssl
 cd boringssl
 %{__tar} -xf %{SOURCE100}
+popd
+
+pushd ..
+MODULE="njs"
+%{__rm} -rf ${MODULE}
+%{__mkdir} ${MODULE}
+cd ${MODULE}
+%{__tar} -xf %{SOURCE1} --strip 1
 popd
 
 pushd ..
@@ -154,6 +163,11 @@ CFLAGS="${CFLAGS} ${EXCC_OPTS}"; export CFLAGS;
 export CXXFLAGS="${CFLAGS}"
 LDFLAGS="%{?__global_ldflags} -Wl,-E -lrt -ljemalloc -lpcre -flto=8 -fuse-ld=gold"; export LDFLAGS;
 
+pushd ../njs
+./configure
+%make_build
+popd
+
 ./auto/configure \
   --with-debug \
   --with-cc-opt="-I../boringssl/include ${CFLAGS}" \
@@ -199,6 +213,7 @@ LDFLAGS="%{?__global_ldflags} -Wl,-E -lrt -ljemalloc -lpcre -flto=8 -fuse-ld=gol
   --with-http_slice_module \
   --with-http_stub_status_module \
   --with-http_geoip_module=dynamic \
+  --add-dynamic-module=../njs/nginx \
   --add-dynamic-module=../ngx_brotli \
   --add-dynamic-module=../ngx_http_geoip2_module \
   --add-dynamic-module=../ModSecurity-nginx \
@@ -380,8 +395,11 @@ esac
 %dir %{nginx_uwsgi_cachedir}
 %dir %{nginx_scgi_cachedir}
 
-# Brotli
+# njs
 %dir %{nginx_moddir}
+%{nginx_moddir}/ngx_http_js_module.so
+
+# Brotli
 %config(noreplace) %{nginx_confdir}/conf.d/http/brotli.conf
 %config(noreplace) %{nginx_confdir}/conf.modules.d/ngx_brotli.conf
 %{nginx_moddir}/ngx_http_brotli_filter_module.so
@@ -403,6 +421,7 @@ esac
 %changelog
 * Tue Oct 27 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.1-10
 - Change bumpup version nginx-quic, boringssl
+- Add njs module
 - Add GeoIP module
 - Add GeoIP2 module
 - Add ModSecurity module
