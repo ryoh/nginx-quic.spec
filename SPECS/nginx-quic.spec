@@ -101,8 +101,6 @@ and a generic TCP/UDP proxy server, originally written by Igor Sysoev.
 %prep
 %setup -q -n %{name}-%{nginx_quic_commit}
 
-yum search git
-
 pushd ..
 %{__rm} -rf boringssl
 %{__mkdir} boringssl
