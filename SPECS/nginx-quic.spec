@@ -83,9 +83,9 @@ BuildRequires:  brotli-devel
 BuildRequires:  openssl-devel
 BuildRequires:  GeoIP-devel
 BuildRequires:  libmaxminddb-devel
-BuildRequires:  libmodsecurity-devel
 BuildRequires:  readline-devel
 %if 0%{?rhel} == 7
+BuildRequires:  libmodsecurity-devel
 BuildRequires:  expect-devel
 BuildRequires:  devtoolset-9
 BuildRequires:  rh-git218
@@ -238,10 +238,13 @@ popd
   --add-dynamic-module=../njs/nginx \
   --add-dynamic-module=../ngx_brotli \
   --add-dynamic-module=../ngx_http_geoip2_module \
-  --add-dynamic-module=../ModSecurity-nginx \
   --add-dynamic-module=../nginx-module-vts \
   --add-dynamic-module=../echo-nginx-module \
   --add-dynamic-module=../headers-more-nginx-module \
+%if 0%{?rhel} == 7
+  --add-dynamic-module=../ModSecurity-nginx \
+%endif
+
 
 %make_build
 
