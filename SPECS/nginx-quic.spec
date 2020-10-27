@@ -88,7 +88,7 @@ BuildRequires:  readline-devel
 BuildRequires:  libmodsecurity-devel
 BuildRequires:  expect-devel
 BuildRequires:  devtoolset-9
-BuildRequires:  rh-git218
+#BuildRequires:  rh-git218
 %endif
 %if 0%{?rhel} == 8
 BuildRequires:  gcc-toolset-9
@@ -100,6 +100,8 @@ and a generic TCP/UDP proxy server, originally written by Igor Sysoev.
 
 %prep
 %setup -q -n %{name}-%{nginx_quic_commit}
+
+dnf search git
 
 pushd ..
 %{__rm} -rf boringssl
