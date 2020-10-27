@@ -256,7 +256,9 @@ popd
 %make_install INSTALLDIRS=vendor
 
 # njs bin
+%if 0%{?rhel} == 7
 %{__install} -p -D -m 0755 %{_builddir}/njs/build/njs %{buildroot}%{_bindir}/njs
+%endif
 
 # Deleting unused files
 %{__rm} -f %{buildroot}%{nginx_confdir}/fastcgi.conf
@@ -429,7 +431,9 @@ esac
 
 # njs
 %dir %{nginx_moddir}
+%if 0%{?rhel} == 7
 %{_bindir}/njs
+%endif
 %{nginx_moddir}/ngx_http_js_module.so
 
 # Brotli
@@ -445,7 +449,9 @@ esac
 %{nginx_moddir}/ngx_http_geoip2_module.so
 
 # ModSecurity
+%if 0%{?rhel} == 7
 %{nginx_moddir}/ngx_http_modsecurity_module.so
+%endif
 
 # VTS
 %{nginx_moddir}/ngx_http_vhost_traffic_status_module.so
