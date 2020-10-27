@@ -85,8 +85,8 @@ BuildRequires:  GeoIP-devel
 BuildRequires:  libmaxminddb-devel
 BuildRequires:  libmodsecurity-devel
 BuildRequires:  readline-devel
-BuildRequires:  expect-devel
 %if 0%{?rhel} == 7
+BuildRequires:  expect-devel
 BuildRequires:  devtoolset-9
 BuildRequires:  rh-git218
 %endif
