@@ -23,7 +23,7 @@
 %global         nginx_uwsgi_cachedir   %{nginx_tempdir}/uwsgi_cache
 %global         nginx_scgi_cachedir    %{nginx_tempdir}/scgi_cache
 
-%global         nginx_quic_commit   c5ea341f705a 
+%global         nginx_quic_commit   183275308d9a
 %global         boringssl_commit    74161f485b5d54fe963cbd3d081b718ec84d2e00
 
 %global         pkg_name            nginx-quic
@@ -76,8 +76,7 @@ BuildRequires:    systemd
 BuildRequires:  make gcc automake autoconf libtool
 BuildRequires:  zlib-devel pcre-devel
 BuildRequires:  jemalloc-devel
-#BuildRequires:  cmake3 ninja-build golang
-BuildRequires:  cmake3 ninja-build
+BuildRequires:  cmake3 ninja-build golang
 BuildRequires:  libunwind-devel
 BuildRequires:  libatomic_ops-devel
 BuildRequires:  brotli-devel
@@ -461,6 +460,8 @@ esac
 
 
 %changelog
+* Wed Nov 03 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.4-1
+- Change bumpup version nginx-quic
 * Tue Oct 27 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.3-10
 - Change bumpup version nginx-quic, boringssl
 - Add njs module
