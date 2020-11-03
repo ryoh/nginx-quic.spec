@@ -24,11 +24,11 @@
 %global         nginx_scgi_cachedir    %{nginx_tempdir}/scgi_cache
 
 %global         nginx_quic_commit   c5ea341f705a 
-%global         boringssl_commit    777e1ff3b1443788c5fdb982b3b822aac5448d9e
+%global         boringssl_commit    74161f485b5d54fe963cbd3d081b718ec84d2e00
 
 %global         pkg_name            nginx-quic
-%global         main_version        1.19.3
-%global         main_release        10%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
+%global         main_version        1.19.4
+%global         main_release        1%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
 
 Name:           %{pkg_name}
 Version:        %{main_version}
@@ -76,7 +76,8 @@ BuildRequires:    systemd
 BuildRequires:  make gcc automake autoconf libtool
 BuildRequires:  zlib-devel pcre-devel
 BuildRequires:  jemalloc-devel
-BuildRequires:  cmake3 ninja-build golang
+#BuildRequires:  cmake3 ninja-build golang
+BuildRequires:  cmake3 ninja-build
 BuildRequires:  libunwind-devel
 BuildRequires:  libatomic_ops-devel
 BuildRequires:  brotli-devel
