@@ -24,7 +24,7 @@
 %global         nginx_scgi_cachedir    %{nginx_tempdir}/scgi_cache
 
 %global         nginx_quic_commit   183275308d9a
-%global         boringssl_commit    74161f485b5d54fe963cbd3d081b718ec84d2e00
+%global         boringssl_commit    281a8f5ea393ffe67924249d2f0636d97a609c1f
 
 %global         pkg_name            nginx-quic
 %global         main_version        1.19.4
@@ -460,7 +460,7 @@ esac
 
 
 %changelog
-* Wed Nov 03 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.4-1
+* Tue Nov 03 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.4-1
 - Change bumpup version nginx-quic
 * Tue Oct 27 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.3-10
 - Change bumpup version nginx-quic, boringssl
