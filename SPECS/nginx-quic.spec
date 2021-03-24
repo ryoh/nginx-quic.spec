@@ -23,11 +23,12 @@
 %global         nginx_uwsgi_cachedir   %{nginx_tempdir}/uwsgi_cache
 %global         nginx_scgi_cachedir    %{nginx_tempdir}/scgi_cache
 
-%global         nginx_quic_commit   183275308d9a
-%global         boringssl_commit    281a8f5ea393ffe67924249d2f0636d97a609c1f
+%global         nginx_quic_commit   7a07724256c2
+%global         boringssl_commit    49f0329110a1d93a5febc2bceceedc655d995420
+%global         njs_version         0.5.2
 
 %global         pkg_name            nginx-quic
-%global         main_version        1.19.4
+%global         main_version        1.19.8
 %global         main_release        1%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
 
 Name:           %{pkg_name}
@@ -39,7 +40,7 @@ License:        BSD
 URL:            https://nginx.org/
 
 Source0:        https://hg.nginx.org/nginx-quic/archive/%{nginx_quic_commit}.tar.gz#/nginx-quic-%{nginx_quic_commit}.tar.gz
-Source1:        https://hg.nginx.org/njs/archive/0.4.4.tar.gz#/njs-0.4.4.tar.gz
+Source1:        https://hg.nginx.org/njs/archive/%{njs_version}.tar.gz#/njs-%{njs_version}.tar.gz
 
 Source10:       nginx.service
 Source11:       nginx.sysconf
@@ -102,9 +103,10 @@ and a generic TCP/UDP proxy server, originally written by Igor Sysoev.
 %setup -q -n %{name}-%{nginx_quic_commit}
 
 pushd ..
-%{__rm} -rf boringssl
-%{__mkdir} boringssl
-cd boringssl
+MODULE="boringssl"
+%{__rm} -rf ${MODULE}
+%{__mkdir} ${MODULE}
+cd ${MODULE}
 %{__tar} -xf %{SOURCE100}
 popd
 
@@ -117,16 +119,18 @@ cd ${MODULE}
 popd
 
 pushd ..
-%{__rm} -rf ngx_brotli
-%{__mkdir} ngx_brotli
-cd ngx_brotli
+MODULE="ngx_brotli"
+%{__rm} -rf ${MODULE}
+%{__mkdir} ${MODULE}
+cd ${MODULE}
 %{__tar} -xf %{SOURCE200} --strip 1
 popd
 
 pushd ..
-%{__rm} -rf ngx_http_geoip2_module
-%{__mkdir} ngx_http_geoip2_module
-cd ngx_http_geoip2_module
+MODULE="ngx_http_geoip2_module"
+%{__rm} -rf ${MODULE}
+%{__mkdir} ${MODULE}
+cd ${MODULE}
 %{__tar} -xf %{SOURCE201} --strip 1
 popd
 
@@ -179,7 +183,7 @@ cmake3 -GNinja ..
 ninja
 popd
 
-EXCC_OPTS="-ftree-vectorize -flto=8 -ffat-lto-objects -fuse-ld=gold -fuse-linker-plugin -Wformat -Wno-strict-aliasing -Wno-stringop-truncation -gsplit-dwarf"
+EXCC_OPTS="-ftree-vectorize -flto=8 -ffat-lto-objects -fuse-ld=gold -fuse-linker-plugin -Wformat -Wno-strict-aliasing -Wno-stringop-truncation"
 CFLAGS="$(echo %{optflags} $(pcre-config --cflags) | sed -e 's/-O2/-O3/')"
 CFLAGS="${CFLAGS} ${EXCC_OPTS}"; export CFLAGS;
 export CXXFLAGS="${CFLAGS}"
@@ -460,6 +464,8 @@ esac
 
 
 %changelog
+* Wed Mar 24 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.8-1
+- Change bumpup version nginx-quic, boringssl
 * Tue Nov 03 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.4-1
 - Change bumpup version nginx-quic
 * Tue Oct 27 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.3-10
