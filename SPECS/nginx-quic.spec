@@ -26,10 +26,11 @@
 %global         nginx_quic_commit   7a07724256c2
 %global         boringssl_commit    49f0329110a1d93a5febc2bceceedc655d995420
 %global         njs_version         0.5.2
+%global         cf_zlib_version     1.2.8
 
 %global         pkg_name            nginx-quic
 %global         main_version        1.19.8
-%global         main_release        1%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
+%global         main_release        2%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
 
 Name:           %{pkg_name}
 Version:        %{main_version}
@@ -58,6 +59,7 @@ Source22:       nginx-http-brotli.conf
 Source50:       00-default.conf
 
 Source100:      https://boringssl.googlesource.com/boringssl/+archive/%{boringssl_commit}.tar.gz#/boringssl-%{boringssl_commit}.tar.gz
+Source101:      https://github.com/cloudflare/zlib/archive/v%{cf_zlib_version}.tar.gz#/zlib-%{cf_zlib_version}.tar.gz
 
 Source200:      https://github.com/google/ngx_brotli/archive/v1.0.0rc.tar.gz#/ngx_brotli-v1.0.0rc.tar.gz
 Source201:      https://github.com/leev/ngx_http_geoip2_module/archive/3.3.tar.gz#/ngx_http_geoip2_module-3.3.tar.gz
@@ -108,6 +110,14 @@ MODULE="boringssl"
 %{__mkdir} ${MODULE}
 cd ${MODULE}
 %{__tar} -xf %{SOURCE100}
+popd
+
+pushd ..
+MODULE="cf-zlib"
+%{__rm} -rf ${MODULE}
+%{__mkdir} ${MODULE}
+cd ${MODULE}
+%{__tar} -xf %{SOURCE101} --strip 1
 popd
 
 pushd ..
@@ -198,6 +208,8 @@ popd
   --with-debug \
   --with-cc-opt="-I../boringssl/include ${CFLAGS}" \
   --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto ${LDFLAGS}" \
+  --with-zlib=../cf-zlib \
+  --with-zlib-opt="${CFLAGS}" \
   --prefix=%{nginx_home} \
   --sbin-path=%{_sbindir}/nginx \
   --modules-path=%{nginx_moddir} \
@@ -464,6 +476,8 @@ esac
 
 
 %changelog
+* Wed Mar 24 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.8-2
+- Add Cloudflare zlib
 * Wed Mar 24 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.8-1
 - Change bumpup version nginx-quic, boringssl
 * Tue Nov 03 2020 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.4-1
