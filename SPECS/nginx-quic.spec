@@ -30,7 +30,7 @@
 
 %global         pkg_name            nginx-quic
 %global         main_version        1.19.8
-%global         main_release        2%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
+%global         main_release        3%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
 
 Name:           %{pkg_name}
 Version:        %{main_version}
@@ -91,7 +91,7 @@ BuildRequires:  readline-devel
 BuildRequires:  libmodsecurity-devel
 BuildRequires:  expect-devel
 BuildRequires:  devtoolset-9
-#BuildRequires:  rh-git218
+BuildRequires:  rh-git218
 %endif
 %if 0%{?rhel} == 8
 BuildRequires:  gcc-toolset-9
@@ -206,10 +206,9 @@ popd
 
 ./auto/configure \
   --with-debug \
-  --with-cc-opt="-I../boringssl/include ${CFLAGS}" \
+  --with-cc-opt="-I../boringssl/include ${CFLAGS} -DTCP_FASTOPEN=23" \
   --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto ${LDFLAGS}" \
   --with-zlib=../cf-zlib \
-  --with-zlib-opt="${CFLAGS}" \
   --prefix=%{nginx_home} \
   --sbin-path=%{_sbindir}/nginx \
   --modules-path=%{nginx_moddir} \
@@ -251,6 +250,11 @@ popd
   --with-http_slice_module \
   --with-http_stub_status_module \
   --with-http_geoip_module=dynamic \
+  --with-stream \
+  --with-stream_ssl_module \
+  --with-stream_ssl_preread_module \
+  --with-stream_realip_module \
+  --with-stream_geoip_module \
   --add-dynamic-module=../njs/nginx \
   --add-dynamic-module=../ngx_brotli \
   --add-dynamic-module=../ngx_http_geoip2_module \
@@ -449,6 +453,7 @@ esac
 %{_bindir}/njs
 %endif
 %{nginx_moddir}/ngx_http_js_module.so
+%{nginx_moddir}/ngx_stream_js_module.so
 
 # Brotli
 %config(noreplace) %{nginx_confdir}/conf.d/http/brotli.conf
@@ -461,6 +466,7 @@ esac
 
 # GeoIP2
 %{nginx_moddir}/ngx_http_geoip2_module.so
+%{nginx_moddir}/ngx_stream_geoip2_module.so
 
 # ModSecurity
 %if 0%{?rhel} == 7
@@ -476,6 +482,9 @@ esac
 
 
 %changelog
+* Thu Mar 25 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.8-3
+- Change build flags
+- Add stream module
 * Wed Mar 24 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.8-2
 - Add Cloudflare zlib
 * Wed Mar 24 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.8-1
