@@ -23,14 +23,14 @@
 %global         nginx_uwsgi_cachedir   %{nginx_tempdir}/uwsgi_cache
 %global         nginx_scgi_cachedir    %{nginx_tempdir}/scgi_cache
 
-%global         nginx_quic_commit   7a07724256c2
-%global         boringssl_commit    49f0329110a1d93a5febc2bceceedc655d995420
+%global         nginx_quic_commit   12f18e0bca09
+%global         boringssl_commit    782d9b6cf7764f6aa2e5e5ffe470431a822c9cc1
 %global         njs_version         0.5.2
 %global         cf_zlib_version     1.2.8
 
 %global         pkg_name            nginx-quic
-%global         main_version        1.19.8
-%global         main_release        3%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
+%global         main_version        1.19.10
+%global         main_release        1%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
 
 Name:           %{pkg_name}
 Version:        %{main_version}
@@ -482,6 +482,8 @@ esac
 
 
 %changelog
+* Sun Apr 25 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.10-1
+- Change bumpup version nginx-quic, boringssl
 * Thu Mar 25 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.8-3
 - Change build flags
 - Add stream module
