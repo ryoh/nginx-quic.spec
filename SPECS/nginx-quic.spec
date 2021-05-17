@@ -31,7 +31,7 @@
 
 %global         pkg_name            nginx-quic
 %global         main_version        1.19.10
-%global         main_release        1%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
+%global         main_release        2%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
 
 Name:           %{pkg_name}
 Version:        %{main_version}
@@ -123,14 +123,6 @@ cd ${MODULE}
 popd
 
 pushd ..
-MODULE="zlib-ng"
-%{__rm} -rf ${MODULE}
-%{__mkdir} ${MODULE}
-cd ${MODULE}
-%{__tar} -xf %{SOURCE102} --strip 1
-popd
-
-pushd ..
 MODULE="njs"
 %{__rm} -rf ${MODULE}
 %{__mkdir} ${MODULE}
@@ -219,6 +211,7 @@ popd
   --with-cc-opt="-I../boringssl/include ${CFLAGS} -DTCP_FASTOPEN=23" \
   --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto ${LDFLAGS}" \
   --with-zlib=../cf-zlib \
+  --with-zlib-opt="" \
   --prefix=%{nginx_home} \
   --sbin-path=%{_sbindir}/nginx \
   --modules-path=%{nginx_moddir} \
@@ -493,6 +486,8 @@ esac
 
 
 %changelog
+* Mon May 17 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.10-2
+- Change bumpup version nginx-quic, boringssl
 * Sun Apr 25 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.10-1
 - Change bumpup version nginx-quic, boringssl
 * Thu Mar 25 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.8-3
