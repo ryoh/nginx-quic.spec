@@ -27,6 +27,7 @@
 %global         boringssl_commit    782d9b6cf7764f6aa2e5e5ffe470431a822c9cc1
 %global         njs_version         0.5.3
 %global         cf_zlib_version     1.2.8
+%global         zlib_ng_version     2.0.3
 
 %global         pkg_name            nginx-quic
 %global         main_version        1.19.10
@@ -60,6 +61,7 @@ Source50:       00-default.conf
 
 Source100:      https://boringssl.googlesource.com/boringssl/+archive/%{boringssl_commit}.tar.gz#/boringssl-%{boringssl_commit}.tar.gz
 Source101:      https://github.com/cloudflare/zlib/archive/v%{cf_zlib_version}.tar.gz#/zlib-%{cf_zlib_version}.tar.gz
+Source102:      https://github.com/zlib-ng/zlib-ng/archive/%{zlib_ng_version}.tar.gz#/zlib-ng-%{zlib_ng_version}.tar.gz
 
 Source200:      https://github.com/google/ngx_brotli/archive/v1.0.0rc.tar.gz#/ngx_brotli-v1.0.0rc.tar.gz
 Source201:      https://github.com/leev/ngx_http_geoip2_module/archive/3.3.tar.gz#/ngx_http_geoip2_module-3.3.tar.gz
@@ -118,6 +120,14 @@ MODULE="cf-zlib"
 %{__mkdir} ${MODULE}
 cd ${MODULE}
 %{__tar} -xf %{SOURCE101} --strip 1
+popd
+
+pushd ..
+MODULE="zlib-ng"
+%{__rm} -rf ${MODULE}
+%{__mkdir} ${MODULE}
+cd ${MODULE}
+%{__tar} -xf %{SOURCE102} --strip 1
 popd
 
 pushd ..
