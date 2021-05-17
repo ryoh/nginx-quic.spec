@@ -23,9 +23,9 @@
 %global         nginx_uwsgi_cachedir   %{nginx_tempdir}/uwsgi_cache
 %global         nginx_scgi_cachedir    %{nginx_tempdir}/scgi_cache
 
-%global         nginx_quic_commit   12f18e0bca09
+%global         nginx_quic_commit   f52a2b77d406
 %global         boringssl_commit    782d9b6cf7764f6aa2e5e5ffe470431a822c9cc1
-%global         njs_version         0.5.2
+%global         njs_version         0.5.3
 %global         cf_zlib_version     1.2.8
 
 %global         pkg_name            nginx-quic
@@ -255,6 +255,7 @@ popd
   --with-stream_ssl_preread_module \
   --with-stream_realip_module \
   --with-stream_geoip_module \
+  --with-stream_quic_module \
   --add-dynamic-module=../njs/nginx \
   --add-dynamic-module=../ngx_brotli \
   --add-dynamic-module=../ngx_http_geoip2_module \
