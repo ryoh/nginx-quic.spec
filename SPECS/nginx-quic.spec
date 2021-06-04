@@ -81,7 +81,7 @@ BuildRequires:    systemd
 BuildRequires:  make gcc automake autoconf libtool
 BuildRequires:  zlib-devel pcre-devel
 BuildRequires:  jemalloc-devel
-BuildRequires:  cmake3 ninja-build golang
+BuildRequires:  ninja-build golang
 BuildRequires:  libunwind-devel
 BuildRequires:  libatomic_ops-devel
 BuildRequires:  brotli-devel
@@ -90,14 +90,17 @@ BuildRequires:  GeoIP-devel
 BuildRequires:  libmaxminddb-devel
 BuildRequires:  readline-devel
 %if 0%{?rhel} == 7
+%global cmake cmake3
 BuildRequires:  libmodsecurity-devel
 BuildRequires:  expect-devel
 BuildRequires:  devtoolset-9
 BuildRequires:  rh-git218
 %endif
 %if 0%{?rhel} == 8
+%global cmake cmake
 BuildRequires:  gcc-toolset-9
 %endif
+BuildRequires:  %{cmake}
 
 %description
 nginx [engine x] is an HTTP and reverse proxy server, a mail proxy server,
@@ -191,7 +194,7 @@ source scl_source enable gcc-toolset-9 ||:
 pushd ../boringssl
 mkdir build
 cd build
-cmake3 -GNinja ..
+%{cmake} -GNinja ..
 ninja
 popd
 
