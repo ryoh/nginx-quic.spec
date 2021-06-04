@@ -23,15 +23,15 @@
 %global         nginx_uwsgi_cachedir   %{nginx_tempdir}/uwsgi_cache
 %global         nginx_scgi_cachedir    %{nginx_tempdir}/scgi_cache
 
-%global         nginx_quic_commit   f52a2b77d406
-%global         boringssl_commit    782d9b6cf7764f6aa2e5e5ffe470431a822c9cc1
+%global         nginx_quic_commit   ac0398da8f23
+%global         boringssl_commit    88df13d73d5a74505f046f0bf37fb2fb3e1f1a58
 %global         njs_version         0.5.3
 %global         cf_zlib_version     1.2.8
 %global         zlib_ng_version     2.0.3
 
 %global         pkg_name            nginx-quic
-%global         main_version        1.19.10
-%global         main_release        2%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
+%global         main_version        1.21.0
+%global         main_release        1%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
 
 Name:           %{pkg_name}
 Version:        %{main_version}
