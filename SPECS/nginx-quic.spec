@@ -91,6 +91,7 @@ BuildRequires:  libmaxminddb-devel
 BuildRequires:  readline-devel
 %if 0%{?rhel} == 7
 %global cmake cmake3
+BuildRequires:  cmake3
 BuildRequires:  libmodsecurity-devel
 BuildRequires:  expect-devel
 BuildRequires:  devtoolset-9
@@ -98,9 +99,9 @@ BuildRequires:  rh-git218
 %endif
 %if 0%{?rhel} == 8
 %global cmake cmake
+BuildRequires:  cmake
 BuildRequires:  gcc-toolset-9
 %endif
-BuildRequires:  %{cmake}
 
 %description
 nginx [engine x] is an HTTP and reverse proxy server, a mail proxy server,
