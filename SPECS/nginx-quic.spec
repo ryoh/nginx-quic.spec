@@ -25,7 +25,7 @@
 
 %global         nginx_quic_commit   ce6d9cf0f567
 %global         boringssl_commit    88df13d73d5a74505f046f0bf37fb2fb3e1f1a58
-%global         njs_version         0.5.3
+%global         njs_version         0.6.2
 %global         cf_zlib_version     1.2.8
 %global         zlib_ng_version     2.0.3
 
@@ -91,6 +91,7 @@ BuildRequires:  openssl-devel
 BuildRequires:  GeoIP-devel
 BuildRequires:  libmaxminddb-devel
 BuildRequires:  readline-devel
+BuildRequires:  perl-IPC-Cmd
 %if 0%{?rhel} == 7
 %global cmake cmake3
 BuildRequires:  cmake3
@@ -211,7 +212,7 @@ ninja
 popd
 
 EXCC_OPTS="-ftree-vectorize -flto=8 -ffat-lto-objects -fuse-ld=gold -fuse-linker-plugin -Wformat -Wno-strict-aliasing -Wno-stringop-truncation"
-CFLAGS="$(echo %{optflags} $(pcre-config --cflags) | sed -e 's/-O2/-O3/')"
+CFLAGS="$(echo %{optflags} $(pcre-config --cflags))"
 CFLAGS="${CFLAGS} ${EXCC_OPTS}"; export CFLAGS;
 export CXXFLAGS="${CFLAGS}"
 LDFLAGS="%{?__global_ldflags} -Wl,-E -lrt -ljemalloc -lpcre -flto=8 -fuse-ld=gold"; export LDFLAGS;
@@ -506,7 +507,7 @@ esac
 
 %changelog
 * Mon May 17 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.21.7-1
-- Change bumpup version nginx-quic
+- Change bumpup version nginx-quic, njs
 * Mon May 17 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.21.0-1
 - Add zstd module
 - Fix ModSecurity module
