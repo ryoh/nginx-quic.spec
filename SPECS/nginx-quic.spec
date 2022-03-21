@@ -43,7 +43,6 @@ License:        BSD
 URL:            https://nginx.org/
 
 Source0:        https://hg.nginx.org/nginx-quic/archive/%{nginx_quic_commit}.tar.gz#/nginx-quic-%{nginx_quic_commit}.tar.gz
-#Source0:        https://hg.nginx.org/nginx-quic/archive/release-%{main_version}.tar.gz#/nginx-quic-release-%{main_version}.tar.gz
 Source1:        https://hg.nginx.org/njs/archive/%{njs_version}.tar.gz#/njs-%{njs_version}.tar.gz
 
 Source10:       nginx.service
@@ -114,7 +113,6 @@ and a generic TCP/UDP proxy server, originally written by Igor Sysoev.
 
 %prep
 %setup -q -n %{name}-%{nginx_quic_commit}
-#%setup -q -n %{name}-release-%{main_version}
 
 pushd ..
 MODULE="quictls"
@@ -212,14 +210,6 @@ source scl_source enable rh-git218 ||:
 %if 0%{?rhel} == 8
 source scl_source enable gcc-toolset-9 ||:
 %endif
-
-# BoringSSL
-#pushd ../boringssl
-#mkdir build
-#cd build
-#%{cmake} -GNinja ..
-#ninja
-#popd
 
 EXCC_OPTS="-ftree-vectorize -flto=8 -ffat-lto-objects -fuse-ld=gold -fuse-linker-plugin -Wformat -Wno-strict-aliasing -Wno-stringop-truncation"
 CFLAGS="$(echo %{optflags} $(pcre-config --cflags))"
