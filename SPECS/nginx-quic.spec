@@ -31,7 +31,7 @@
 
 %global         pkg_name            nginx-quic
 %global         main_version        1.21.6
-%global         main_release        2%{?dist}.quictls%{quictls_version}
+%global         main_release        3%{?dist}.quictls%{quictls_version}
 
 Name:           %{pkg_name}
 Version:        %{main_version}
@@ -98,13 +98,13 @@ BuildRequires:  libzstd-devel
 BuildRequires:  cmake3
 BuildRequires:  libmodsecurity-devel
 BuildRequires:  expect-devel
-BuildRequires:  devtoolset-9
+BuildRequires:  devtoolset-11
 BuildRequires:  rh-git218
 %endif
 %if 0%{?rhel} == 8
 %global cmake cmake
 BuildRequires:  cmake
-BuildRequires:  gcc-toolset-9
+BuildRequires:  gcc-toolset-11
 %endif
 
 %description
@@ -204,11 +204,11 @@ popd
 
 %build
 %if 0%{?rhel} == 7
-source scl_source enable devtoolset-9 ||:
+source scl_source enable devtoolset-11 ||:
 source scl_source enable rh-git218 ||:
 %endif
 %if 0%{?rhel} == 8
-source scl_source enable gcc-toolset-9 ||:
+source scl_source enable gcc-toolset-11 ||:
 %endif
 
 #EXCC_OPTS="-ftree-vectorize -flto=8 -ffat-lto-objects -fuse-ld=gold -fuse-linker-plugin -Wformat -Wno-strict-aliasing -Wno-stringop-truncation"
@@ -509,6 +509,8 @@ esac
 
 
 %changelog
+* Tue Mar 22 2022 Ryoh Kawai <kawairyoh@gmail.com> - 1.21.6-3
+- Change GCC 9 to 11
 * Tue Mar 22 2022 Ryoh Kawai <kawairyoh@gmail.com> - 1.21.6-2
 - Rename package revision
 - Disable debug option
