@@ -23,14 +23,14 @@
 %global         nginx_uwsgi_cachedir   %{nginx_tempdir}/uwsgi_cache
 %global         nginx_scgi_cachedir    %{nginx_tempdir}/scgi_cache
 
-%global         nginx_quic_commit   ac0398da8f23
+%global         nginx_quic_commit   ce6d9cf0f567
 %global         boringssl_commit    88df13d73d5a74505f046f0bf37fb2fb3e1f1a58
 %global         njs_version         0.5.3
 %global         cf_zlib_version     1.2.8
 %global         zlib_ng_version     2.0.3
 
 %global         pkg_name            nginx-quic
-%global         main_version        1.21.0
+%global         main_version        1.21.7
 %global         main_release        1%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
 
 Name:           %{pkg_name}
@@ -42,6 +42,7 @@ License:        BSD
 URL:            https://nginx.org/
 
 Source0:        https://hg.nginx.org/nginx-quic/archive/%{nginx_quic_commit}.tar.gz#/nginx-quic-%{nginx_quic_commit}.tar.gz
+#Source0:        https://hg.nginx.org/nginx-quic/archive/release-%{main_version}.tar.gz#/nginx-quic-release-%{main_version}.tar.gz
 Source1:        https://hg.nginx.org/njs/archive/%{njs_version}.tar.gz#/njs-%{njs_version}.tar.gz
 
 Source10:       nginx.service
@@ -110,6 +111,7 @@ and a generic TCP/UDP proxy server, originally written by Igor Sysoev.
 
 %prep
 %setup -q -n %{name}-%{nginx_quic_commit}
+#%setup -q -n %{name}-release-%{main_version}
 
 pushd ..
 MODULE="boringssl"
@@ -250,7 +252,6 @@ popd
   --with-http_ssl_module \
   --with-http_v2_module \
   --with-http_v3_module \
-  --with-http_quic_module \
   --with-http_realip_module \
   --with-http_addition_module \
   --with-http_sub_module \
@@ -504,7 +505,9 @@ esac
 
 
 %changelog
-* Mon May 17 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.10-3
+* Mon May 17 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.21.7-1
+- Change bumpup version nginx-quic
+* Mon May 17 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.21.0-1
 - Add zstd module
 - Fix ModSecurity module
 * Mon May 17 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.10-2
