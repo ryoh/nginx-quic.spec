@@ -65,10 +65,11 @@ Source102:      https://github.com/zlib-ng/zlib-ng/archive/%{zlib_ng_version}.ta
 
 Source200:      https://github.com/google/ngx_brotli/archive/v1.0.0rc.tar.gz#/ngx_brotli-v1.0.0rc.tar.gz
 Source201:      https://github.com/leev/ngx_http_geoip2_module/archive/3.3.tar.gz#/ngx_http_geoip2_module-3.3.tar.gz
-Source202:      https://github.com/SpiderLabs/ModSecurity-nginx/archive/v1.0.1.tar.gz#/ModSecurity-nginx-v1.0.1.tar.gz
+Source202:      https://github.com/SpiderLabs/ModSecurity-nginx/archive/v1.0.2.tar.gz#/ModSecurity-nginx-v1.0.2.tar.gz
 Source203:      https://github.com/vozlt/nginx-module-vts/archive/v0.1.18.tar.gz#/nginx-module-vts-v0.1.18.tar.gz
 Source204:      https://github.com/openresty/echo-nginx-module/archive/v0.62.tar.gz#/echo-nginx-module-v0.62.tar.gz
 Source205:      https://github.com/openresty/headers-more-nginx-module/archive/v0.33.tar.gz#/headers-more-nginx-module-v0.33.tar.gz
+Source206:      https://github.com/tokers/zstd-nginx-module/archive/1e0fa0bfb995e72f8f7e4c0153025c3306f1a5cc.tar.gz#/zstd-nginx-module-1e0fa0bfb995e72f8f7e4c0153025c3306f1a5cc.tar.gz
 
 Requires:       jemalloc
 Requires:       brotli
@@ -182,6 +183,14 @@ cd ${MODULE}
 %{__tar} -xf %{SOURCE205} --strip 1
 popd
 
+pushd ..
+MODULE="zstd-nginx-module"
+%{__rm} -rf ${MODULE}
+%{__mkdir} ${MODULE}
+cd ${MODULE}
+%{__tar} -xf %{SOURCE206} --strip 1
+popd
+
 %build
 %if 0%{?rhel} == 7
 source scl_source enable devtoolset-9 ||:
@@ -269,6 +278,7 @@ popd
   --add-dynamic-module=../nginx-module-vts \
   --add-dynamic-module=../echo-nginx-module \
   --add-dynamic-module=../headers-more-nginx-module \
+  --add-dynamic-module=../zstd-nginx-module \
 %if 0%{?rhel} == 7
   --add-dynamic-module=../ModSecurity-nginx \
 %endif
@@ -488,8 +498,15 @@ esac
 %{nginx_moddir}/ngx_http_echo_module.so
 %{nginx_moddir}/ngx_http_headers_more_filter_module.so
 
+# zstd moudle
+%{nginx_moddir}/ngx_http_zstd_filter_module.so
+%{nginx_moddir}/ngx_http_zstd_static_module.so
+
 
 %changelog
+* Mon May 17 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.10-3
+- Add zstd module
+- Fix ModSecurity module
 * Mon May 17 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.10-2
 - Change bumpup version nginx-quic, boringssl
 * Sun Apr 25 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.19.10-1
