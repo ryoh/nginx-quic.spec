@@ -28,6 +28,7 @@
 %global         njs_version         0.6.2
 %global         cf_zlib_version     1.2.8
 %global         zlib_ng_version     2.0.3
+%global         quictls_version     1_1_1n
 
 %global         pkg_name            nginx-quic
 %global         main_version        1.21.7
@@ -60,6 +61,7 @@ Source21:       nginx-http-proxy_headers.conf
 Source22:       nginx-http-brotli.conf
 Source50:       00-default.conf
 
+Source99:       https://github.com/quictls/openssl/archive/OpenSSL_%{quictls_version}+quic.tar.gz
 Source100:      https://boringssl.googlesource.com/boringssl/+archive/%{boringssl_commit}.tar.gz#/boringssl-%{boringssl_commit}.tar.gz
 Source101:      https://github.com/cloudflare/zlib/archive/v%{cf_zlib_version}.tar.gz#/zlib-%{cf_zlib_version}.tar.gz
 Source102:      https://github.com/zlib-ng/zlib-ng/archive/%{zlib_ng_version}.tar.gz#/zlib-ng-%{zlib_ng_version}.tar.gz
@@ -113,6 +115,14 @@ and a generic TCP/UDP proxy server, originally written by Igor Sysoev.
 %prep
 %setup -q -n %{name}-%{nginx_quic_commit}
 #%setup -q -n %{name}-release-%{main_version}
+
+pushd ..
+MODULE="quictls"
+%{__rm} -rf ${MODULE}
+%{__mkdir} ${MODULE}
+cd ${MODULE}
+%{__tar} -xf %{SOURCE99} --strip 1
+popd
 
 pushd ..
 MODULE="boringssl"
@@ -204,12 +214,12 @@ source scl_source enable gcc-toolset-9 ||:
 %endif
 
 # BoringSSL
-pushd ../boringssl
-mkdir build
-cd build
-%{cmake} -GNinja ..
-ninja
-popd
+#pushd ../boringssl
+#mkdir build
+#cd build
+#%{cmake} -GNinja ..
+#ninja
+#popd
 
 EXCC_OPTS="-ftree-vectorize -flto=8 -ffat-lto-objects -fuse-ld=gold -fuse-linker-plugin -Wformat -Wno-strict-aliasing -Wno-stringop-truncation"
 CFLAGS="$(echo %{optflags} $(pcre-config --cflags))"
@@ -224,8 +234,9 @@ popd
 
 ./auto/configure \
   --with-debug \
-  --with-cc-opt="-I../boringssl/include ${CFLAGS} -DTCP_FASTOPEN=23" \
-  --with-ld-opt="-L../boringssl/build/ssl -L../boringssl/build/crypto ${LDFLAGS}" \
+  --with-cc-opt="${CFLAGS} -DTCP_FASTOPEN=23" \
+  --with-ld-opt="${LDFLAGS}" \
+  --with-openssl=../quictls \
   --with-zlib=../cf-zlib \
   --with-zlib-opt="" \
   --prefix=%{nginx_home} \
@@ -508,6 +519,7 @@ esac
 %changelog
 * Mon May 17 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.21.7-1
 - Change bumpup version nginx-quic, njs
+- Change support quictls
 * Mon May 17 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.21.0-1
 - Add zstd module
 - Fix ModSecurity module
