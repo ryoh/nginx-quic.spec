@@ -83,7 +83,6 @@ BuildRequires:    systemd
 BuildRequires:  make gcc automake autoconf libtool
 BuildRequires:  zlib-devel pcre-devel
 BuildRequires:  jemalloc-devel
-BuildRequires:  ninja-build golang
 BuildRequires:  libunwind-devel
 BuildRequires:  libatomic_ops-devel
 BuildRequires:  brotli-devel
@@ -95,7 +94,6 @@ BuildRequires:  perl-IPC-Cmd
 BuildRequires:  libzstd-devel
 %if 0%{?rhel} == 7
 %global cmake cmake3
-BuildRequires:  cmake3
 BuildRequires:  libmodsecurity-devel
 BuildRequires:  expect-devel
 BuildRequires:  devtoolset-11
@@ -103,8 +101,7 @@ BuildRequires:  rh-git218
 %endif
 %if 0%{?rhel} == 8
 %global cmake cmake
-BuildRequires:  cmake
-BuildRequires:  gcc-toolset-11
+BuildRequires:  gcc-toolset-9
 %endif
 
 %description
@@ -208,16 +205,18 @@ source scl_source enable devtoolset-11 ||:
 source scl_source enable rh-git218 ||:
 %endif
 %if 0%{?rhel} == 8
-source scl_source enable gcc-toolset-11 ||:
+source scl_source enable gcc-toolset-9 ||:
 %endif
 
 #EXCC_OPTS="-ftree-vectorize -flto=8 -ffat-lto-objects -fuse-ld=gold -fuse-linker-plugin -Wformat -Wno-strict-aliasing -Wno-stringop-truncation"
-EXCC_OPTS="-ftree-vectorize -fuse-ld=gold -fuse-linker-plugin -Wformat -Wno-strict-aliasing -Wno-stringop-truncation"
+#EXCC_OPTS="-flto=8 -Wformat -Wno-strict-aliasing -Wno-stringop-truncation"
+#EXCC_OPTS="-ftree-vectorize -flto=8 -ffat-lto-objects -Wformat -Wno-strict-aliasing -Wno-stringop-truncation"
+EXCC_OPTS="-march=native"
 CFLAGS="$(echo %{optflags} $(pcre-config --cflags))"
 CFLAGS="${CFLAGS} ${EXCC_OPTS}"; export CFLAGS;
 export CXXFLAGS="${CFLAGS}"
-#LDFLAGS="%{?__global_ldflags} -Wl,-E -lrt -ljemalloc -lpcre -flto=8 -fuse-ld=gold"; export LDFLAGS;
-LDFLAGS="%{?__global_ldflags} -Wl,-E -lrt -ljemalloc -lpcre -fuse-ld=gold"; export LDFLAGS;
+#LDFLAGS="%{?__global_ldflags} -Wl,-E -lrt -ljemalloc -lpcre -fuse-ld=gold -fuse-linker-plugin"
+LDFLAGS="%{?__global_ldflags} -ljemalloc -lpcre"; export LDFLAGS;
 
 pushd ../njs
 ./configure
