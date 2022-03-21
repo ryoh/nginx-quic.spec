@@ -24,15 +24,14 @@
 %global         nginx_scgi_cachedir    %{nginx_tempdir}/scgi_cache
 
 %global         nginx_quic_commit   ce6d9cf0f567
-%global         boringssl_commit    88df13d73d5a74505f046f0bf37fb2fb3e1f1a58
 %global         njs_version         0.6.2
 %global         cf_zlib_version     1.2.8
 %global         zlib_ng_version     2.0.3
-%global         quictls_version     1_1_1n
+%global         quictls_version     3.0.2
 
 %global         pkg_name            nginx-quic
-%global         main_version        1.21.7
-%global         main_release        1%{?dist}.%{nginx_quic_commit}.%{boringssl_commit}
+%global         main_version        1.21.6
+%global         main_release        2%{?dist}.quictls%{quictls_version}
 
 Name:           %{pkg_name}
 Version:        %{main_version}
@@ -60,8 +59,7 @@ Source21:       nginx-http-proxy_headers.conf
 Source22:       nginx-http-brotli.conf
 Source50:       00-default.conf
 
-Source99:       https://github.com/quictls/openssl/archive/OpenSSL_%{quictls_version}+quic.tar.gz
-Source100:      https://boringssl.googlesource.com/boringssl/+archive/%{boringssl_commit}.tar.gz#/boringssl-%{boringssl_commit}.tar.gz
+Source100:      https://github.com/quictls/openssl/archive/openssl-%{quictls_version}+quic.tar.gz
 Source101:      https://github.com/cloudflare/zlib/archive/v%{cf_zlib_version}.tar.gz#/zlib-%{cf_zlib_version}.tar.gz
 Source102:      https://github.com/zlib-ng/zlib-ng/archive/%{zlib_ng_version}.tar.gz#/zlib-ng-%{zlib_ng_version}.tar.gz
 
@@ -75,6 +73,7 @@ Source206:      https://github.com/tokers/zstd-nginx-module/archive/1e0fa0bfb995
 
 Requires:       jemalloc
 Requires:       brotli
+Requires:       libzstd
 Requires(pre):  shadow-utils
 Requires(post):   systemd 
 Requires(preun):  systemd 
@@ -93,6 +92,7 @@ BuildRequires:  GeoIP-devel
 BuildRequires:  libmaxminddb-devel
 BuildRequires:  readline-devel
 BuildRequires:  perl-IPC-Cmd
+BuildRequires:  libzstd-devel
 %if 0%{?rhel} == 7
 %global cmake cmake3
 BuildRequires:  cmake3
@@ -119,7 +119,7 @@ MODULE="quictls"
 %{__rm} -rf ${MODULE}
 %{__mkdir} ${MODULE}
 cd ${MODULE}
-%{__tar} -xf %{SOURCE99} --strip 1
+%{__tar} -xf %{SOURCE100} --strip 1
 popd
 
 pushd ..
@@ -211,11 +211,13 @@ source scl_source enable rh-git218 ||:
 source scl_source enable gcc-toolset-9 ||:
 %endif
 
-EXCC_OPTS="-ftree-vectorize -flto=8 -ffat-lto-objects -fuse-ld=gold -fuse-linker-plugin -Wformat -Wno-strict-aliasing -Wno-stringop-truncation"
+#EXCC_OPTS="-ftree-vectorize -flto=8 -ffat-lto-objects -fuse-ld=gold -fuse-linker-plugin -Wformat -Wno-strict-aliasing -Wno-stringop-truncation"
+EXCC_OPTS="-ftree-vectorize -fuse-ld=gold -fuse-linker-plugin -Wformat -Wno-strict-aliasing -Wno-stringop-truncation"
 CFLAGS="$(echo %{optflags} $(pcre-config --cflags))"
 CFLAGS="${CFLAGS} ${EXCC_OPTS}"; export CFLAGS;
 export CXXFLAGS="${CFLAGS}"
-LDFLAGS="%{?__global_ldflags} -Wl,-E -lrt -ljemalloc -lpcre -flto=8 -fuse-ld=gold"; export LDFLAGS;
+#LDFLAGS="%{?__global_ldflags} -Wl,-E -lrt -ljemalloc -lpcre -flto=8 -fuse-ld=gold"; export LDFLAGS;
+LDFLAGS="%{?__global_ldflags} -Wl,-E -lrt -ljemalloc -lpcre -fuse-ld=gold"; export LDFLAGS;
 
 pushd ../njs
 ./configure
@@ -223,10 +225,10 @@ pushd ../njs
 popd
 
 ./auto/configure \
-  --with-debug \
-  --with-cc-opt="${CFLAGS} -DTCP_FASTOPEN=23" \
   --with-ld-opt="${LDFLAGS}" \
+  --with-cc-opt="${CFLAGS} -DTCP_FASTOPEN=23" \
   --with-openssl=../quictls \
+  --with-openssl-opt="enable-ktls" \
   --with-zlib=../cf-zlib \
   --with-zlib-opt="" \
   --prefix=%{nginx_home} \
@@ -507,7 +509,10 @@ esac
 
 
 %changelog
-* Mon May 17 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.21.7-1
+* Tue Mar 22 2022 Ryoh Kawai <kawairyoh@gmail.com> - 1.21.6-2
+- Rename package revision
+- Disable debug option
+* Mon Mar 21 2022 Ryoh Kawai <kawairyoh@gmail.com> - 1.21.6-1
 - Change bumpup version nginx-quic, njs
 - Change support quictls
 * Mon May 17 2021 Ryoh Kawai <kawairyoh@gmail.com> - 1.21.0-1

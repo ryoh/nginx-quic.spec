@@ -2,7 +2,15 @@
 
 [![Copr build status](https://copr.fedorainfracloud.org/coprs/ryoh/nginx-quic/package/nginx-quic/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/ryoh/nginx-quic/package/nginx-quic/)
 
-nginx quic preview package
+nginx quic preview package.
+
+- Enable QUIC and HTTP/3
+- SSL library uses quictls (Support kernel TLS)
+- Use cloudflare zlib
+- Use jemalloc
+- Disable debug option
+- Enable FastTCP option
+- And some optimize (Disable LTO)
 
 ## Build
 
