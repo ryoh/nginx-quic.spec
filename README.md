@@ -8,7 +8,7 @@ nginx quic preview package.
 - SSL library uses quictls (Support kernel TLS)
 - Use cloudflare zlib
 - Use jemalloc
-- Disable debug option
+- Enable debug option
 - Enable FastTCP option
 - And some optimize (Disable LTO)
 
