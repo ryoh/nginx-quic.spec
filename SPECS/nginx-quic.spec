@@ -1,5 +1,4 @@
 %global         _performance_build  1
-%undefine       _hardened_build
 
 %global         nginx_user          nginx
 %global         nginx_group         nginx
@@ -120,14 +119,6 @@ cd ${MODULE}
 popd
 
 pushd ..
-MODULE="boringssl"
-%{__rm} -rf ${MODULE}
-%{__mkdir} ${MODULE}
-cd ${MODULE}
-%{__tar} -xf %{SOURCE100}
-popd
-
-pushd ..
 MODULE="cf-zlib"
 %{__rm} -rf ${MODULE}
 %{__mkdir} ${MODULE}
@@ -208,23 +199,11 @@ source scl_source enable rh-git218 ||:
 source scl_source enable gcc-toolset-9 ||:
 %endif
 
-#EXCC_OPTS="-ftree-vectorize -flto=8 -ffat-lto-objects -fuse-ld=gold -fuse-linker-plugin -Wformat -Wno-strict-aliasing -Wno-stringop-truncation"
-#EXCC_OPTS="-flto=8 -Wformat -Wno-strict-aliasing -Wno-stringop-truncation"
-#EXCC_OPTS="-ftree-vectorize -flto=8 -ffat-lto-objects -Wformat -Wno-strict-aliasing -Wno-stringop-truncation"
-EXCC_OPTS="-march=native -flto=8 -ffat-lto-objects"
+EXCC_OPTS="-march=native"
 CFLAGS="$(echo %{optflags} $(pcre-config --cflags))"
 CFLAGS="${CFLAGS} ${EXCC_OPTS}"; export CFLAGS;
 export CXXFLAGS="${CFLAGS}"
-#LDFLAGS="%{?__global_ldflags} -Wl,-E -lrt -ljemalloc -lpcre -fuse-ld=gold -fuse-linker-plugin"
-LDFLAGS="%{?__global_ldflags} -lrt -ljemalloc -lpcre -fuse-ld=gold -fuse-linker-plugin"; export LDFLAGS;
-
-#pushd ../njs
-#./configure \
-  #--ld-opt="${LDFLAGS} -L../quictls/build/lib" \
-  #--cc-opt="${CFLAGS} -I../quictls/build/include"
-
-#%make_build
-#popd
+LDFLAGS="%{?__global_ldflags} -ljemalloc -lpcre"; export LDFLAGS;
 
 ./auto/configure \
   --with-debug \
