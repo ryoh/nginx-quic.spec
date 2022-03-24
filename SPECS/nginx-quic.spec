@@ -23,15 +23,15 @@
 %global         nginx_uwsgi_cachedir   %{nginx_tempdir}/uwsgi_cache
 %global         nginx_scgi_cachedir    %{nginx_tempdir}/scgi_cache
 
-%global         nginx_quic_commit   ce6d9cf0f567
-%global         njs_version         0.6.2
+%global         nginx_quic_commit   cd8018bc81a5
+%global         njs_version         0.7.0
 %global         cf_zlib_version     1.2.8
 %global         zlib_ng_version     2.0.3
 %global         quictls_version     3.0.2
 
 %global         pkg_name            nginx-quic
 %global         main_version        1.21.6
-%global         main_release        3%{?dist}.quictls%{quictls_version}
+%global         main_release        4%{?dist}.quictls%{quictls_version}
 
 Name:           %{pkg_name}
 Version:        %{main_version}
@@ -211,19 +211,23 @@ source scl_source enable gcc-toolset-9 ||:
 #EXCC_OPTS="-ftree-vectorize -flto=8 -ffat-lto-objects -fuse-ld=gold -fuse-linker-plugin -Wformat -Wno-strict-aliasing -Wno-stringop-truncation"
 #EXCC_OPTS="-flto=8 -Wformat -Wno-strict-aliasing -Wno-stringop-truncation"
 #EXCC_OPTS="-ftree-vectorize -flto=8 -ffat-lto-objects -Wformat -Wno-strict-aliasing -Wno-stringop-truncation"
-EXCC_OPTS="-march=native"
+EXCC_OPTS="-march=native -flto=8 -ffat-lto-objects"
 CFLAGS="$(echo %{optflags} $(pcre-config --cflags))"
 CFLAGS="${CFLAGS} ${EXCC_OPTS}"; export CFLAGS;
 export CXXFLAGS="${CFLAGS}"
 #LDFLAGS="%{?__global_ldflags} -Wl,-E -lrt -ljemalloc -lpcre -fuse-ld=gold -fuse-linker-plugin"
-LDFLAGS="%{?__global_ldflags} -ljemalloc -lpcre"; export LDFLAGS;
+LDFLAGS="%{?__global_ldflags} -lrt -ljemalloc -lpcre -fuse-ld=gold -fuse-linker-plugin"; export LDFLAGS;
 
-pushd ../njs
-./configure
-%make_build
-popd
+#pushd ../njs
+#./configure \
+  #--ld-opt="${LDFLAGS} -L../quictls/build/lib" \
+  #--cc-opt="${CFLAGS} -I../quictls/build/include"
+
+#%make_build
+#popd
 
 ./auto/configure \
+  --with-debug \
   --with-ld-opt="${LDFLAGS}" \
   --with-cc-opt="${CFLAGS} -DTCP_FASTOPEN=23" \
   --with-openssl=../quictls \
@@ -508,6 +512,9 @@ esac
 
 
 %changelog
+* Tue Mar 22 2022 Ryoh Kawai <kawairyoh@gmail.com> - 1.21.6-4
+- Fix config files
+- Change bumpup njs
 * Tue Mar 22 2022 Ryoh Kawai <kawairyoh@gmail.com> - 1.21.6-3
 - Change GCC 9 to 11
 * Tue Mar 22 2022 Ryoh Kawai <kawairyoh@gmail.com> - 1.21.6-2
