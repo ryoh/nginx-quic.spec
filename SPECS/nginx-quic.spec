@@ -1,4 +1,5 @@
 %global         _performance_build  1
+%global         _hardened_build     1
 
 %global         nginx_user          nginx
 %global         nginx_group         nginx
@@ -73,6 +74,7 @@ Source206:      https://github.com/tokers/zstd-nginx-module/archive/1e0fa0bfb995
 Requires:       jemalloc
 Requires:       brotli
 Requires:       libzstd
+Requires:       libslz
 Requires(pre):  shadow-utils
 Requires(post):   systemd 
 Requires(preun):  systemd 
@@ -91,6 +93,7 @@ BuildRequires:  libmaxminddb-devel
 BuildRequires:  readline-devel
 BuildRequires:  perl-IPC-Cmd
 BuildRequires:  libzstd-devel
+BuildRequires:  libslz-devel
 %if 0%{?rhel} == 7
 %global cmake cmake3
 BuildRequires:  libmodsecurity-devel
@@ -203,7 +206,8 @@ EXCC_OPTS="-march=native"
 CFLAGS="$(echo %{optflags} $(pcre-config --cflags))"
 CFLAGS="${CFLAGS} ${EXCC_OPTS}"; export CFLAGS;
 export CXXFLAGS="${CFLAGS}"
-LDFLAGS="%{?__global_ldflags} -ljemalloc -lpcre"; export LDFLAGS;
+LDFLAGS="%{?__global_ldflags} -ljemalloc -lpcre -lslz"
+export LDFLAGS;
 
 ./auto/configure \
   --with-debug \
@@ -211,8 +215,6 @@ LDFLAGS="%{?__global_ldflags} -ljemalloc -lpcre"; export LDFLAGS;
   --with-cc-opt="${CFLAGS} -DTCP_FASTOPEN=23" \
   --with-openssl=../quictls \
   --with-openssl-opt="enable-ktls" \
-  --with-zlib=../cf-zlib \
-  --with-zlib-opt="" \
   --prefix=%{nginx_home} \
   --sbin-path=%{_sbindir}/nginx \
   --modules-path=%{nginx_moddir} \
