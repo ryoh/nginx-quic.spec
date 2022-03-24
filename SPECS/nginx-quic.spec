@@ -95,15 +95,13 @@ BuildRequires:  perl-IPC-Cmd
 BuildRequires:  libzstd-devel
 BuildRequires:  libslz-devel
 %if 0%{?rhel} == 7
-%global cmake cmake3
 BuildRequires:  libmodsecurity-devel
 BuildRequires:  expect-devel
 BuildRequires:  devtoolset-11
 BuildRequires:  rh-git218
 %endif
 %if 0%{?rhel} == 8
-%global cmake cmake
-BuildRequires:  gcc-toolset-9
+BuildRequires:  gcc-toolset-11
 %endif
 
 %description
@@ -206,7 +204,7 @@ EXCC_OPTS="-march=native"
 CFLAGS="$(echo %{optflags} $(pcre-config --cflags))"
 CFLAGS="${CFLAGS} ${EXCC_OPTS}"; export CFLAGS;
 export CXXFLAGS="${CFLAGS}"
-LDFLAGS="%{?__global_ldflags} -ljemalloc -lpcre -lslz"
+LDFLAGS="%{?__global_ldflags} -ljemalloc $(pcre-config --libs) -lslz"
 export LDFLAGS;
 
 ./auto/configure \
@@ -235,7 +233,6 @@ export LDFLAGS;
   --with-file-aio \
   --with-libatomic \
   --with-compat \
-  --with-pcre \
   --with-pcre-jit \
   --with-http_ssl_module \
   --with-http_v2_module \
